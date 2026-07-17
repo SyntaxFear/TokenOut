@@ -93,6 +93,24 @@ func probeTranscripts() async {
     print("week:  \(Format.tokens(week.tokens.total)) tokens, \(Format.usd(week.costUSD))")
 }
 
+func probeAntigravity() async {
+    print("== Antigravity ==")
+    let provider = AntigravityProvider()
+    guard await provider.detectInstallation() else {
+        print("not installed")
+        return
+    }
+    do {
+        let snapshot = try await provider.fetchUsage()
+        for line in snapshot.detail { print("\(line.title): \(line.value)") }
+        if let tokens = snapshot.tokens {
+            print("est tokens today: \(Format.tokens(tokens.todayTokens)), week: \(Format.tokens(tokens.weekTokens))")
+        }
+    } catch {
+        print("fetch failed: \(error)")
+    }
+}
+
 await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
     Task {
         if mode == "claude" || mode == "all" {
@@ -100,6 +118,7 @@ await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
             await probeTranscripts()
         }
         if mode == "codex" || mode == "all" { await probeCodex() }
+        if mode == "antigravity" || mode == "all" { await probeAntigravity() }
         done.resume()
     }
 }
