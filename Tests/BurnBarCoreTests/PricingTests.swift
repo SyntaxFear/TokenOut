@@ -18,10 +18,11 @@ import Foundation
 }
 
 @Test func cacheRatesApply() {
-    let usage = TokenUsage(input: 0, output: 0, cacheWrite: 1_000_000, cacheRead: 1_000_000)
+    let usage = TokenUsage(input: 0, output: 0, cacheWrite: 1_000_000,
+                           cacheWrite1h: 1_000_000, cacheRead: 1_000_000)
     let cost = Pricing.cost(model: "claude-sonnet-5", usage: usage)
-    // write 1.25x input rate + read 0.1x input rate = 3.75 + 0.30
-    #expect(abs(cost.usd - (3.75 + 0.30)) < 0.0001)
+    // 5m write 1.25x + 1h write 2x + read 0.1x of $3 input = 3.75 + 6.00 + 0.30
+    #expect(abs(cost.usd - (3.75 + 6.00 + 0.30)) < 0.0001)
 }
 
 @Test func unknownModelFallsBackEstimated() {

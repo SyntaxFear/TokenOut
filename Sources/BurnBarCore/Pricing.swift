@@ -4,21 +4,28 @@ import Foundation
 public struct TokenUsage: Codable, Sendable, Equatable {
     public var input: Int
     public var output: Int
+    /// 5-minute-TTL cache writes (1.25x input rate).
     public var cacheWrite: Int
+    /// 1-hour-TTL cache writes (2x input rate) — Claude Code predominantly uses these.
+    public var cacheWrite1h: Int
     public var cacheRead: Int
 
-    public init(input: Int = 0, output: Int = 0, cacheWrite: Int = 0, cacheRead: Int = 0) {
+    public init(input: Int = 0, output: Int = 0, cacheWrite: Int = 0,
+                cacheWrite1h: Int = 0, cacheRead: Int = 0) {
         self.input = input
         self.output = output
         self.cacheWrite = cacheWrite
+        self.cacheWrite1h = cacheWrite1h
         self.cacheRead = cacheRead
     }
 
-    public var total: Int { input + output + cacheWrite + cacheRead }
+    public var total: Int { input + output + cacheWrite + cacheWrite1h + cacheRead }
 
     public static func + (a: TokenUsage, b: TokenUsage) -> TokenUsage {
         TokenUsage(input: a.input + b.input, output: a.output + b.output,
-                   cacheWrite: a.cacheWrite + b.cacheWrite, cacheRead: a.cacheRead + b.cacheRead)
+                   cacheWrite: a.cacheWrite + b.cacheWrite,
+                   cacheWrite1h: a.cacheWrite1h + b.cacheWrite1h,
+                   cacheRead: a.cacheRead + b.cacheRead)
     }
 }
 
@@ -56,6 +63,7 @@ public enum Pricing {
         let usd = (Double(usage.input) * rate.input
                  + Double(usage.output) * rate.output
                  + Double(usage.cacheWrite) * rate.input * 1.25
+                 + Double(usage.cacheWrite1h) * rate.input * 2.0
                  + Double(usage.cacheRead) * rate.input * 0.1) / 1_000_000
         return (usd, matched == nil)
     }
