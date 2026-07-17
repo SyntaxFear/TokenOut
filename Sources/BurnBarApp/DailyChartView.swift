@@ -184,13 +184,5 @@ struct DailyChartView: View {
             }
         }
         .frame(height: 74)
-        .overlay(alignment: .topTrailing) {
-            if hovered == nil, let peak = peakDay, value(peak) > 0 {
-                Text(compactValue(value(peak)))
-                    .font(.system(size: 8.5, weight: .medium).monospacedDigit())
-                    .foregroundStyle(.tertiary)
-                    .padding(.trailing, 2)
-            }
-        }
     }
 }

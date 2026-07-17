@@ -193,10 +193,27 @@ final class AppState {
         }
     }
 
+    /// No provider fetch may wedge the loop — a blocked Keychain prompt once froze
+    /// refreshes overnight while the UI kept showing stale numbers.
+    private func withTimeout<T: Sendable>(
+        seconds: TimeInterval, _ op: @escaping @Sendable () async throws -> T
+    ) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask { try await op() }
+            group.addTask {
+                try await Task.sleep(for: .seconds(seconds))
+                throw ProviderError.network("timed out — waiting on a system prompt?")
+            }
+            let result = try await group.next()!
+            group.cancelAll()
+            return result
+        }
+    }
+
     private func fetchOnce(_ provider: any UsageProvider) async {
         let id = type(of: provider).id
         do {
-            let snapshot = try await provider.fetchUsage()
+            let snapshot = try await withTimeout(seconds: 180) { try await provider.fetchUsage() }
             failureCounts[id] = 0
             store.apply(result: .success(snapshot), for: id)
             history.record(snapshot: snapshot)

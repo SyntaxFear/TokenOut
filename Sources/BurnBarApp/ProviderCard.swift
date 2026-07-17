@@ -65,6 +65,16 @@ struct ProviderCard: View {
 
     @ViewBuilder
     private func content(_ snapshot: UsageSnapshot) -> some View {
+        if Date.now.timeIntervalSince(snapshot.fetchedAt) > 15 * 60 {
+            Label {
+                Text("Data from \(snapshot.fetchedAt.formatted(.relative(presentation: .named))) — numbers below may be outdated. Hit Refresh (and answer any Keychain prompt).")
+                    .fixedSize(horizontal: false, vertical: true)
+            } icon: {
+                Image(systemName: "clock.badge.exclamationmark")
+            }
+            .font(.system(size: 10))
+            .foregroundStyle(.orange)
+        }
         ForEach(snapshot.windows, id: \.label) { window in
             WindowRow(window: window)
             if let projection = app.projection(for: providerID, window: window) {
@@ -212,7 +222,9 @@ struct WindowRow: View {
             .frame(height: 5)
             if let resetsAt = window.resetsAt {
                 TimelineView(.periodic(from: .now, by: 30)) { context in
-                    Text("refills in \(Format.countdown(until: resetsAt, from: context.date))")
+                    Text(resetsAt > context.date
+                         ? "refills in \(Format.countdown(until: resetsAt, from: context.date))"
+                         : "refilled · refreshing…")
                         .font(.system(size: 10).monospacedDigit())
                         .foregroundStyle(.tertiary)
                 }
