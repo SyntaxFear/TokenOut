@@ -29,7 +29,10 @@ public enum ClaudeCredentials {
         .appending(path: ".claude/.credentials.json")
     /// Public OAuth client id used by Claude Code's own login flow.
     static let clientID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
-    static let tokenEndpoint = URL(string: "https://platform.claude.com/v1/oauth/token")!
+    static let tokenEndpoints = [
+        URL(string: "https://console.anthropic.com/v1/oauth/token")!,
+        URL(string: "https://platform.claude.com/v1/oauth/token")!,
+    ]
 
     public static func load() -> ClaudeOAuth? {
         fromKeychain() ?? fromFile()
@@ -76,28 +79,33 @@ public enum ClaudeCredentials {
         )
     }
 
-    /// Best-effort refresh using Claude Code's public client id. The result lives in memory
-    /// only — we never mutate Claude Code's stored credentials.
+    /// Best-effort refresh, trying the known Claude Code OAuth endpoints. In-memory
+    /// only — we never mutate Claude Code's stored credentials. When BurnBar can't get
+    /// a valid token, the honest recovery is for the user to run Claude Code (which
+    /// refreshes the shared token) — see ClaudeProvider.
     public static func refresh(_ creds: ClaudeOAuth) async -> ClaudeOAuth? {
         guard let refreshToken = creds.refreshToken else { return nil }
-        var request = URLRequest(url: tokenEndpoint)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: [
-            "grant_type": "refresh_token",
-            "refresh_token": refreshToken,
-            "client_id": clientID,
-        ])
-        guard let (data, response) = try? await URLSession.shared.data(for: request),
-              (response as? HTTPURLResponse)?.statusCode == 200,
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let access = json["access_token"] as? String else { return nil }
-        let expiresIn = (json["expires_in"] as? NSNumber)?.doubleValue ?? 3600
-        return ClaudeOAuth(
-            accessToken: access,
-            refreshToken: (json["refresh_token"] as? String) ?? refreshToken,
-            expiresAt: (Date.now.timeIntervalSince1970 + expiresIn) * 1000,
-            subscriptionType: creds.subscriptionType
-        )
+        for endpoint in tokenEndpoints {
+            var request = URLRequest(url: endpoint)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try? JSONSerialization.data(withJSONObject: [
+                "grant_type": "refresh_token",
+                "refresh_token": refreshToken,
+                "client_id": clientID,
+            ])
+            guard let (data, response) = try? await URLSession.shared.data(for: request),
+                  (response as? HTTPURLResponse)?.statusCode == 200,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let access = json["access_token"] as? String else { continue }
+            let expiresIn = (json["expires_in"] as? NSNumber)?.doubleValue ?? 3600
+            return ClaudeOAuth(
+                accessToken: access,
+                refreshToken: (json["refresh_token"] as? String) ?? refreshToken,
+                expiresAt: (Date.now.timeIntervalSince1970 + expiresIn) * 1000,
+                subscriptionType: creds.subscriptionType
+            )
+        }
+        return nil
     }
 }

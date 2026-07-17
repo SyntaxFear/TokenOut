@@ -86,7 +86,10 @@ struct PopoverView: View {
                         Text("Refreshing…").font(.system(size: 11))
                     }
                 } else if app.refreshCoolingDown {
-                    Label("Refreshed", systemImage: "checkmark").font(.system(size: 11))
+                    Label("Updating…", systemImage: "clock").font(.system(size: 11))
+                } else if app.lastRefreshOutcome == .failed {
+                    Label("Some updates failed", systemImage: "exclamationmark.triangle")
+                        .font(.system(size: 11)).foregroundStyle(.orange)
                 } else {
                     Label("Refresh", systemImage: "arrow.clockwise").font(.system(size: 11))
                 }

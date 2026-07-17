@@ -86,6 +86,9 @@ final class AppState {
     private(set) var refreshing: Set<ProviderID> = []
     /// Manual-refresh cooldown so the button can't be hammered.
     private(set) var refreshCoolingDown = false
+    /// Outcome of the last manual refresh, for honest button feedback.
+    enum RefreshOutcome { case idle, succeeded, failed }
+    private(set) var lastRefreshOutcome: RefreshOutcome = .idle
     private var failureCounts: [ProviderID: Int] = [:]
     private let notifier = Notifier()
 
@@ -244,10 +247,17 @@ final class AppState {
     func refreshAll() {
         guard !refreshCoolingDown else { return }
         refreshCoolingDown = true
+        lastRefreshOutcome = .idle
         restartLoops()
         Task { [weak self] in
             try? await Task.sleep(for: .seconds(15))
-            self?.refreshCoolingDown = false
+            guard let self else { return }
+            // Judge success by whether every active provider ended in a healthy state.
+            let ok = self.activeProviders.allSatisfy {
+                self.store.states[type(of: $0).id]?.status == .ok
+            }
+            self.lastRefreshOutcome = ok ? .succeeded : .failed
+            self.refreshCoolingDown = false
         }
     }
 
