@@ -10,20 +10,35 @@ public enum CodexUsageAPI {
         guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             return []
         }
-        let rateLimits = (root["rate_limits"] as? [String: Any]) ?? root
+        // Live shape (verified 2026-07-17): rate_limit.{primary_window,secondary_window};
+        // older/alternate shape kept as fallback: rate_limits.{primary,secondary}.
+        let container = (root["rate_limit"] as? [String: Any])
+            ?? (root["rate_limits"] as? [String: Any]) ?? root
         var windows: [LimitWindow] = []
-        for key in ["primary", "secondary"] {
-            guard let dict = rateLimits[key] as? [String: Any] else { continue }
-            guard let percent = (dict["used_percent"] as? NSNumber)?.doubleValue else { continue }
-            let windowMinutes = (dict["window_minutes"] as? NSNumber)?.intValue ?? 0
-            let resetsIn = (dict["resets_in_seconds"] as? NSNumber)?.doubleValue
-            let isSession = windowMinutes > 0 && windowMinutes <= 360
-            windows.append(LimitWindow(
-                label: isSession ? "5-hour session" : "Weekly",
-                kind: isSession ? .session : .weekly,
-                usedFraction: percent / 100.0,
-                resetsAt: resetsIn.map { now.addingTimeInterval($0) }
-            ))
+        for keys in [["primary_window", "primary"], ["secondary_window", "secondary"]] {
+            guard let dict = keys.lazy.compactMap({ container[$0] as? [String: Any] }).first,
+                  let percent = (dict["used_percent"] as? NSNumber)?.doubleValue else { continue }
+
+            var durationSeconds = (dict["limit_window_seconds"] as? NSNumber)?.doubleValue ?? 0
+            if durationSeconds == 0,
+               let minutes = (dict["window_minutes"] as? NSNumber)?.doubleValue {
+                durationSeconds = minutes * 60
+            }
+
+            var resetsAt: Date?
+            if let epoch = (dict["reset_at"] as? NSNumber)?.doubleValue {
+                resetsAt = Date(timeIntervalSince1970: epoch)
+            } else if let after = ((dict["reset_after_seconds"] ?? dict["resets_in_seconds"]) as? NSNumber)?.doubleValue {
+                resetsAt = now.addingTimeInterval(after)
+            }
+
+            let (label, kind): (String, LimitWindow.Kind) = switch durationSeconds {
+            case 1...(6 * 3600): ("5-hour session", .session)
+            case ...(10 * 86400): ("Weekly", .weekly)
+            default: ("Monthly", .weekly)
+            }
+            windows.append(LimitWindow(label: label, kind: kind,
+                                       usedFraction: percent / 100.0, resetsAt: resetsAt))
         }
         return windows
     }

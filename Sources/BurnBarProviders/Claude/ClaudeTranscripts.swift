@@ -18,7 +18,12 @@ public enum ClaudeTranscriptParser {
     nonisolated(unsafe) private static let isoPlain = ISO8601DateFormatter()
 
     static func date(from string: String) -> Date? {
-        isoFractional.date(from: string) ?? isoPlain.date(from: string)
+        if let parsed = isoFractional.date(from: string) ?? isoPlain.date(from: string) {
+            return parsed
+        }
+        // Some endpoints emit 6-digit fractional seconds; trim to millis and retry.
+        let trimmed = string.replacing(/\.(\d{3})\d+/) { ".\($0.output.1)" }
+        return isoFractional.date(from: trimmed) ?? isoPlain.date(from: trimmed)
     }
 
     /// Parse one transcript's JSONL text. Malformed lines and entries without usage are

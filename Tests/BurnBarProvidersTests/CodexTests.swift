@@ -32,7 +32,22 @@ private func b64url(_ json: String) -> String {
     #expect(auth.isExpired == true)
 }
 
-@Test func codexUsageDecodesWindows() {
+@Test func codexUsageDecodesLiveShape() throws {
+    // Fixture is a sanitized capture of the real endpoint (2026-07-17).
+    let url = Bundle.module.url(forResource: "codex-usage", withExtension: "json",
+                                subdirectory: "Fixtures")!
+    let data = try Data(contentsOf: url)
+    let windows = CodexUsageAPI.decodeWindows(from: data)
+
+    #expect(windows.count == 1)  // secondary_window is null
+    #expect(windows[0].label == "Monthly")  // 2,592,000 s = 30-day window
+    #expect(windows[0].kind == .weekly)
+    #expect(windows[0].usedFraction == 1.0)
+    #expect(windows[0].resetsAt == Date(timeIntervalSince1970: 1_784_829_645))
+    #expect(CodexUsageAPI.decodePlan(from: data) == "free")
+}
+
+@Test func codexUsageDecodesLegacyGuessShape() {
     let now = Date(timeIntervalSince1970: 1_800_000_000)
     let json = """
     {"rate_limits": {
@@ -47,7 +62,6 @@ private func b64url(_ json: String) -> String {
     #expect(abs(windows[0].usedFraction - 0.375) < 0.0001)
     #expect(windows[0].resetsAt == now.addingTimeInterval(4980))
     #expect(windows[1].label == "Weekly")
-    #expect(windows[1].kind == .weekly)
     #expect(CodexUsageAPI.decodePlan(from: Data(json.utf8)) == "pro")
 }
 

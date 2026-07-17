@@ -19,6 +19,13 @@ public enum ClaudeUsageAPI {
         guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             return []
         }
+        // Preferred source (verified live 2026-07-17): the `limits` array — it includes
+        // per-model scoped windows the flat keys don't carry.
+        if let limits = root["limits"] as? [[String: Any]] {
+            let windows = limits.compactMap(decodeLimitEntry)
+            if !windows.isEmpty { return windows }
+        }
+        // Fallback: flat window keys (older response shape).
         var windows: [LimitWindow] = []
         for known in knownWindows {
             guard let dict = root[known.key] as? [String: Any] else { continue }
@@ -31,6 +38,23 @@ public enum ClaudeUsageAPI {
                                        usedFraction: fraction, resetsAt: resetsAt))
         }
         return windows
+    }
+
+    static func decodeLimitEntry(_ dict: [String: Any]) -> LimitWindow? {
+        guard let raw = (dict["percent"] as? NSNumber)?.doubleValue else { return nil }
+        let kindString = (dict["kind"] as? String) ?? (dict["group"] as? String) ?? "weekly"
+        let kind: LimitWindow.Kind = kindString == "session" ? .session : .weekly
+        let scopedModel = ((dict["scope"] as? [String: Any])?["model"] as? [String: Any])?["display_name"] as? String
+        let label: String = switch kindString {
+        case "session": "5-hour session"
+        case "weekly_all": "Weekly (all models)"
+        case "weekly_scoped": "Weekly (\(scopedModel ?? "scoped"))"
+        default: kindString.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+        let resetsAt = (dict["resets_at"] as? String).flatMap {
+            ClaudeTranscriptParser.date(from: $0)
+        }
+        return LimitWindow(label: label, kind: kind, usedFraction: raw / 100.0, resetsAt: resetsAt)
     }
 
     public static func fetch(token: String) async throws -> [LimitWindow] {
