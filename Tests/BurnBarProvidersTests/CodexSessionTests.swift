@@ -36,15 +36,16 @@ import BurnBarCore
     var cal = Calendar(identifier: .gregorian)
     cal.timeZone = TimeZone(identifier: "UTC")!
     let now = ISO8601DateFormatter().date(from: "2026-07-17T12:00:00Z")!
-    let points: [(Date, Int, Double)] = [
-        (ISO8601DateFormatter().date(from: "2026-07-17T09:00:00Z")!, 100, 1.0),
-        (ISO8601DateFormatter().date(from: "2026-07-17T11:00:00Z")!, 50, 0.5),
-        (ISO8601DateFormatter().date(from: "2026-07-16T09:00:00Z")!, 30, 0.3),
-        (ISO8601DateFormatter().date(from: "2026-01-01T09:00:00Z")!, 999, 9.9),  // outside range
+    let points: [(Date, Int, Double, String)] = [
+        (ISO8601DateFormatter().date(from: "2026-07-17T09:00:00Z")!, 100, 1.0, "Fable 5"),
+        (ISO8601DateFormatter().date(from: "2026-07-17T11:00:00Z")!, 50, 0.5, "Opus 4.8"),
+        (ISO8601DateFormatter().date(from: "2026-07-16T09:00:00Z")!, 30, 0.3, "Fable 5"),
+        (ISO8601DateFormatter().date(from: "2026-01-01T09:00:00Z")!, 999, 9.9, "x"),  // outside range
     ]
     let daily = DayStat.aggregate(points: points, days: 30, calendar: cal, now: now)
     #expect(daily.count == 2)
     #expect(daily[0].tokens == 30)       // oldest first
     #expect(daily[1].tokens == 150)
     #expect(abs(daily[1].costUSD - 1.5) < 0.0001)
+    #expect(daily[1].topModelText == "Fable 5 (67%)")
 }

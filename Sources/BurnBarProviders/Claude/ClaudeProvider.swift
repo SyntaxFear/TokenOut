@@ -82,7 +82,8 @@ public struct ClaudeProvider: UsageProvider {
             breakdowns: breakdowns,
             daily: DayStat.aggregate(
                 points: entries.map {
-                    ($0.timestamp, $0.usage.total, Pricing.cost(model: $0.model, usage: $0.usage).usd)
+                    ($0.timestamp, $0.usage.total, Pricing.cost(model: $0.model, usage: $0.usage).usd,
+                     ClaudeTranscriptParser.modelFamily($0.model))
                 },
                 days: 92)
         )

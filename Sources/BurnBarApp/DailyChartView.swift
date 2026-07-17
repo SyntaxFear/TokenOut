@@ -6,7 +6,8 @@ import BurnBarCore
 struct DailyChartView: View {
     @Environment(AppState.self) private var app
     var daily: [DayStat]
-    @State private var expanded = false
+    @State private var expanded = true
+    @State private var hovered: DayStat?
 
     private var visible: [DayStat] {
         let cutoff = Calendar.current.startOfDay(
@@ -41,15 +42,7 @@ struct DailyChartView: View {
                         .font(.system(size: 10)).foregroundStyle(.tertiary)
                 } else {
                     chart
-                    HStack {
-                        Text("\(Format.tokens(totals.tokens)) tokens · \(totals.estimated ? "~" : "")\(Format.usd(totals.cost))")
-                        Spacer()
-                        if let busiest = busiestDay {
-                            Text("peak \(busiest.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))")
-                        }
-                    }
-                    .font(.system(size: 9.5).monospacedDigit())
-                    .foregroundStyle(.secondary)
+                    infoLine
                 }
             }
             .padding(.top, 4)
@@ -57,7 +50,31 @@ struct DailyChartView: View {
             Label("Daily usage", systemImage: "chart.bar.fill")
                 .font(.system(size: 10.5, weight: .medium))
                 .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture { withAnimation(.easeOut(duration: 0.15)) { expanded.toggle() } }
         }
+    }
+
+    /// Hovering a bar swaps the totals line for that day's detail.
+    @ViewBuilder
+    private var infoLine: some View {
+        HStack {
+            if let day = hovered {
+                Text("\(day.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))) · \(Format.tokens(day.tokens)) tok · \(day.costIsEstimated ? "~" : "")\(Format.usd(day.costUSD))\(day.topModelText.map { " · \($0)" } ?? "")")
+                    .foregroundStyle(.primary)
+            } else {
+                Text("\(Format.tokens(totals.tokens)) tokens · \(totals.estimated ? "~" : "")\(Format.usd(totals.cost))")
+                Spacer()
+                if let busiest = busiestDay {
+                    Text("peak \(busiest.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))")
+                }
+            }
+        }
+        .font(.system(size: 9.5).monospacedDigit())
+        .foregroundStyle(.secondary)
+        .lineLimit(1)
+        .frame(minHeight: 12)
     }
 
     private var chart: some View {
@@ -67,9 +84,27 @@ struct DailyChartView: View {
                 y: .value("Tokens", stat.tokens)
             )
             .foregroundStyle(
-                stat.day == busiestDay?.day ? AnyShapeStyle(.red.gradient)
-                                            : AnyShapeStyle(.orange.gradient))
+                stat.day == hovered?.day ? AnyShapeStyle(.yellow.gradient)
+                : stat.day == busiestDay?.day ? AnyShapeStyle(.red.gradient)
+                : AnyShapeStyle(.orange.gradient))
             .cornerRadius(app.dailyRange <= 30 ? 2 : 1)
+        }
+        .chartOverlay { proxy in
+            GeometryReader { geo in
+                Rectangle().fill(.clear).contentShape(Rectangle())
+                    .onContinuousHover { phase in
+                        switch phase {
+                        case .active(let point):
+                            let origin = geo[proxy.plotFrame!].origin
+                            if let date: Date = proxy.value(atX: point.x - origin.x) {
+                                let day = Calendar.current.startOfDay(for: date)
+                                hovered = visible.first { $0.day == day }
+                            }
+                        case .ended:
+                            hovered = nil
+                        }
+                    }
+            }
         }
         .chartXAxis {
             AxisMarks(values: .stride(by: .day, count: max(1, app.dailyRange / 6))) {

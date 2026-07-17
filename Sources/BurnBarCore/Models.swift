@@ -120,25 +120,39 @@ public struct DayStat: Codable, Sendable, Equatable {
     public var tokens: Int
     public var costUSD: Double
     public var costIsEstimated: Bool
+    /// Optional per-model token split for that day (hover tooltips).
+    public var byModel: [String: Int]?
 
-    public init(day: Date, tokens: Int, costUSD: Double, costIsEstimated: Bool = false) {
+    public init(day: Date, tokens: Int, costUSD: Double, costIsEstimated: Bool = false,
+                byModel: [String: Int]? = nil) {
         self.day = day
         self.tokens = tokens
         self.costUSD = costUSD
         self.costIsEstimated = costIsEstimated
+        self.byModel = byModel
     }
 
-    /// Group (date, tokens, cost) points into per-day stats, oldest first, within `days`.
-    public static func aggregate(points: [(Date, Int, Double)], days: Int,
+    /// The model that burned most that day, e.g. "Fable 5 (95%)".
+    public var topModelText: String? {
+        guard let byModel, tokens > 0,
+              let top = byModel.max(by: { $0.value < $1.value }) else { return nil }
+        let share = Int((Double(top.value) / Double(tokens) * 100).rounded())
+        return "\(top.key) (\(share)%)"
+    }
+
+    /// Group (date, tokens, cost, model) points into per-day stats, oldest first, within `days`.
+    public static func aggregate(points: [(Date, Int, Double, String)], days: Int,
                                  calendar: Calendar = .current, now: Date = .now,
                                  estimated: Bool = false) -> [DayStat] {
         let cutoff = calendar.startOfDay(for: now.addingTimeInterval(-Double(days - 1) * 86400))
         var byDay: [Date: DayStat] = [:]
-        for (ts, tokens, cost) in points where ts >= cutoff {
+        for (ts, tokens, cost, model) in points where ts >= cutoff {
             let day = calendar.startOfDay(for: ts)
-            var stat = byDay[day] ?? DayStat(day: day, tokens: 0, costUSD: 0, costIsEstimated: estimated)
+            var stat = byDay[day] ?? DayStat(day: day, tokens: 0, costUSD: 0,
+                                             costIsEstimated: estimated, byModel: [:])
             stat.tokens += tokens
             stat.costUSD += cost
+            stat.byModel?[model, default: 0] += tokens
             byDay[day] = stat
         }
         return byDay.values.sorted { $0.day < $1.day }

@@ -75,7 +75,9 @@ public struct CodexProvider: UsageProvider {
                 }))
         }
         let daily = DayStat.aggregate(
-            points: sessions.map { ($0.date, $0.totalTokens, CodexSessionScanner.cost(of: $0)) },
+            points: sessions.map {
+                ($0.date, $0.totalTokens, CodexSessionScanner.cost(of: $0), $0.model)
+            },
             days: 92, estimated: true)
 
         return UsageSnapshot(
