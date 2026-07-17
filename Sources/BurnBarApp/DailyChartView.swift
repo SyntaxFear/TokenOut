@@ -41,6 +41,7 @@ struct DailyChartView: View {
                     Text("No usage recorded in this range.")
                         .font(.system(size: 10)).foregroundStyle(.tertiary)
                 } else {
+                    statTiles
                     chart
                     infoLine
                 }
@@ -54,6 +55,40 @@ struct DailyChartView: View {
                 .contentShape(Rectangle())
                 .onTapGesture { withAnimation(.easeOut(duration: 0.15)) { expanded.toggle() } }
         }
+    }
+
+    private var todayStat: DayStat? {
+        visible.first { Calendar.current.isDateInToday($0.day) }
+    }
+
+    private var statTiles: some View {
+        let est = totals.estimated ? "~" : ""
+        let tiles: [(String, String)] = [
+            ("Today", "\(est)\(Format.usd(todayStat?.costUSD ?? 0))"),
+            ("\(app.dailyRange)d cost", "\(est)\(Format.usd(totals.cost))"),
+            ("\(app.dailyRange)d tokens", Format.tokens(totals.tokens)),
+            ("Peak day", "\(est)\(Format.usd(busiestDay?.costUSD ?? 0))"),
+        ]
+        return LazyVGrid(columns: [GridItem(.flexible(), spacing: 6), GridItem(.flexible())],
+                         spacing: 6) {
+            ForEach(tiles, id: \.0) { tile in
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(tile.0.uppercased())
+                        .font(.system(size: 8.5, weight: .semibold))
+                        .tracking(0.6)
+                        .foregroundStyle(.tertiary)
+                    Text(tile.1)
+                        .font(.system(size: 17, weight: .semibold, design: .rounded).monospacedDigit())
+                        .contentTransition(.numericText())
+                        .foregroundStyle(tile.0 == "Today" ? AnyShapeStyle(.orange.gradient)
+                                                           : AnyShapeStyle(.primary))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 10).padding(.vertical, 7)
+                .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 9))
+            }
+        }
+        .padding(.vertical, 2)
     }
 
     /// Hovering a bar swaps the totals line for that day's detail.
@@ -126,5 +161,13 @@ struct DailyChartView: View {
             }
         }
         .frame(height: 74)
+        .overlay(alignment: .topTrailing) {
+            if hovered == nil, let busiest = busiestDay, busiest.costUSD > 0 {
+                Text("\(totals.estimated ? "~" : "")\(Format.usd(busiest.costUSD))")
+                    .font(.system(size: 8.5, weight: .medium).monospacedDigit())
+                    .foregroundStyle(.tertiary)
+                    .padding(.trailing, 2)
+            }
+        }
     }
 }
