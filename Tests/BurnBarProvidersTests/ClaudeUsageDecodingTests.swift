@@ -35,11 +35,12 @@ import BurnBarCore
     #expect(abs(windows[1].usedFraction - 0.81) < 0.0001)
 }
 
-@Test func usageDecodingToleratesFractionsAndMissingResets() {
+@Test func usageDecodingFlatShapeIsPercent() {
+    // Flat-shape utilization is documented 0-100 percent — 0.37 means 0.37%, not 37%.
     let json = #"{"five_hour": {"utilization": 0.37}}"#
     let windows = ClaudeUsageAPI.decodeWindows(from: Data(json.utf8))
     #expect(windows.count == 1)
-    #expect(abs(windows[0].usedFraction - 0.37) < 0.0001)
+    #expect(abs(windows[0].usedFraction - 0.0037) < 0.0001)
     #expect(windows[0].resetsAt == nil)
 }
 

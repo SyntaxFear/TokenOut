@@ -4,9 +4,13 @@ import Foundation
 
 @Test func sonnetCostComputes() {
     let usage = TokenUsage(input: 1_000_000, output: 100_000, cacheWrite: 0, cacheRead: 0)
+    // Sonnet 5 intro window ($2/$10 through 2026-08-31): 2.0 input + 1.0 output.
     let cost = Pricing.cost(model: "claude-sonnet-5", usage: usage)
-    #expect(abs(cost.usd - (3.0 + 1.5)) < 0.0001)
+    #expect(abs(cost.usd - (2.0 + 1.0)) < 0.0001)
     #expect(cost.isEstimated == false)
+    // Sonnet 4.6 stays at the stable $3/$15 rate.
+    let stable = Pricing.cost(model: "claude-sonnet-4-6", usage: usage)
+    #expect(abs(stable.usd - (3.0 + 1.5)) < 0.0001)
 }
 
 @Test func datedModelIDsPrefixMatch() {
