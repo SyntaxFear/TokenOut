@@ -41,34 +41,6 @@ func printJSON(_ data: Data) {
     }
 }
 
-func probeRefreshDebug() async {
-    print("== Claude refresh debug ==")
-    guard let creds = ClaudeCredentials.load() else { print("no creds"); return }
-    guard let refreshToken = creds.refreshToken else { print("no refresh token stored"); return }
-    for (label, endpoint) in [
-        ("platform.claude.com", "https://platform.claude.com/v1/oauth/token"),
-        ("console.anthropic.com", "https://console.anthropic.com/v1/oauth/token"),
-    ] {
-        var request = URLRequest(url: URL(string: endpoint)!)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: [
-            "grant_type": "refresh_token",
-            "refresh_token": refreshToken,
-            "client_id": "9d1c250a-e61b-44d9-88ed-5944d1962f5e",
-        ])
-        if let (data, response) = try? await URLSession.shared.data(for: request) {
-            let status = (response as? HTTPURLResponse)?.statusCode ?? -1
-            var body = String(decoding: data, as: UTF8.self)
-            // redact any token-looking values
-            body = body.replacing(/"(access_token|refresh_token)":"[^"]+"/) { "\"\($0.output.1)\":\"<redacted>\"" }
-            print("\(label): HTTP \(status) — \(body.prefix(300))")
-        } else {
-            print("\(label): request failed")
-        }
-    }
-}
-
 func probeClaude() async {
     print("== Claude Code ==")
     guard var creds = ClaudeCredentials.load() else {
@@ -166,8 +138,6 @@ await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
     Task {
         if mode == "status" {
             await printStatusJSON()
-        } else if mode == "refreshdebug" {
-            await probeRefreshDebug()
         } else {
             if mode == "claude" || mode == "all" {
                 await probeClaude()

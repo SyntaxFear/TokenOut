@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import BurnBarCore
 
 struct PopoverView: View {
@@ -10,6 +11,20 @@ struct PopoverView: View {
             guard app.installed.contains(id), app.enabledProviders.contains(id) else { return nil }
             return (id, provider.displayName)
         }
+    }
+
+    private var showsScrollableOverview: Bool {
+        app.popoverFocus == nil && visibleProviders.count > 1
+    }
+
+    /// Fill the active display while leaving room for the pinned header, provider
+    /// picker, footer, window shadow, and menu-bar anchor.
+    private var overviewViewportHeight: CGFloat {
+        let mouse = NSEvent.mouseLocation
+        let screen = NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) }
+            ?? NSScreen.main
+        let screenHeight = screen?.visibleFrame.height ?? 900
+        return max(320, screenHeight - 150)
     }
 
     var body: some View {
@@ -27,11 +42,34 @@ struct PopoverView: View {
                 .labelsHidden()
                 .controlSize(.small)
             }
-            let shown = visibleProviders.filter { app.popoverFocus == nil || $0.id == app.popoverFocus }
-            if visibleProviders.isEmpty {
-                emptyState
+            if showsScrollableOverview {
+                ScrollView {
+                    providerContent
+                        .padding(.trailing, 3)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+                .thinOverlayScroller()
+                .frame(height: overviewViewportHeight)
+                Divider()
             } else {
-                if app.popoverFocus == nil, !app.combinedDaily.isEmpty, visibleProviders.count > 1 {
+                providerContent
+            }
+            footer
+        }
+        .padding(12)
+        .frame(width: 340)
+        .onAppear { app.refreshIfStale() }
+    }
+
+    @ViewBuilder
+    private var providerContent: some View {
+        let shown = visibleProviders.filter { app.popoverFocus == nil || $0.id == app.popoverFocus }
+        if visibleProviders.isEmpty {
+            emptyState
+        } else {
+            LazyVStack(alignment: .leading, spacing: 10) {
+                if app.showCombinedOverview, app.popoverFocus == nil,
+                   !app.combinedDaily.isEmpty, visibleProviders.count > 1 {
                     CombinedCard()
                 }
                 ForEach(shown, id: \.id) { entry in
@@ -41,11 +79,7 @@ struct PopoverView: View {
                                  focused: app.popoverFocus == entry.id)
                 }
             }
-            footer
         }
-        .padding(12)
-        .frame(width: 340)
-        .onAppear { app.refreshIfStale() }
     }
 
     private var header: some View {

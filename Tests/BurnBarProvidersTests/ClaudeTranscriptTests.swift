@@ -37,9 +37,55 @@ private func fixtureURL(_ name: String) -> URL {
     #expect(creds.accessToken == "at-123")
     #expect(creds.refreshToken == "rt-456")
     #expect(creds.subscriptionType == "max")
+    #expect(creds.scopes == ["user:inference"])
     #expect(creds.isExpired == false)  // 2030 epoch ms
 
     let expired = ClaudeOAuth(accessToken: "x", refreshToken: nil,
                               expiresAt: 1_600_000_000_000, subscriptionType: nil)
     #expect(expired.isExpired == true)
+}
+
+@Test func credentialsRejectClaudeCodesClearedDeadTokenRecord() {
+    let json = """
+    {"claudeAiOauth":{"accessToken":"","refreshToken":"","expiresAt":0,"scopes":["user:inference"],"subscriptionType":"max"}}
+    """
+    #expect(ClaudeCredentials.parse(Data(json.utf8)) == nil)
+}
+
+@Test func refreshRequestMatchesClaudeCodesFirstPartyScopeContract() throws {
+    let credentials = ClaudeOAuth(
+        accessToken: "old-access", refreshToken: "old-refresh", expiresAt: 0,
+        subscriptionType: "max", scopes: ["user:file_upload", "user:inference"])
+    let body = try #require(ClaudeCredentials.refreshRequestBody(
+        credentials: credentials, refreshToken: "old-refresh"))
+    let json = try #require(JSONSerialization.jsonObject(with: body) as? [String: String])
+
+    #expect(json["grant_type"] == "refresh_token")
+    #expect(json["client_id"] == "9d1c250a-e61b-44d9-88ed-5944d1962f5e")
+    #expect(json["refresh_token"] == "old-refresh")
+    let scopes = Set(try #require(json["scope"]).split(separator: " ").map(String.init))
+    #expect(scopes == Set([
+        "user:profile", "user:inference", "user:sessions:claude_code",
+        "user:mcp_servers", "user:file_upload",
+    ]))
+}
+
+@Test func rotatedCredentialPersistencePreservesUnrelatedClaudeState() throws {
+    let original = Data("""
+    {"organizationUuid":"org-1","mcpOAuth":{"server":{"token":"keep"}},"claudeAiOauth":{"accessToken":"old","refreshToken":"old-r","expiresAt":1,"scopes":["user:inference"],"subscriptionType":"max","rateLimitTier":"tier"}}
+    """.utf8)
+    let refreshed = ClaudeOAuth(
+        accessToken: "new", refreshToken: "new-r", expiresAt: 2,
+        subscriptionType: "max", scopes: ["user:profile", "user:inference"],
+        rateLimitTier: "tier")
+    let updated = try #require(ClaudeCredentials.updatedCredentialData(original, with: refreshed))
+    let root = try #require(JSONSerialization.jsonObject(with: updated) as? [String: Any])
+    let oauth = try #require(root["claudeAiOauth"] as? [String: Any])
+    let mcp = try #require(root["mcpOAuth"] as? [String: Any])
+
+    #expect(root["organizationUuid"] as? String == "org-1")
+    #expect((mcp["server"] as? [String: String])?["token"] == "keep")
+    #expect(oauth["accessToken"] as? String == "new")
+    #expect(oauth["refreshToken"] as? String == "new-r")
+    #expect((oauth["expiresAt"] as? NSNumber)?.doubleValue == 2)
 }

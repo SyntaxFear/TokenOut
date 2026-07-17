@@ -34,4 +34,56 @@ extension View {
     }
     /// Standard treatment for every clickable control in BurnBar.
     func clickable() -> some View { hoverHighlight().pointer() }
+
+    /// SwiftUI exposes scrollbar visibility but not native scroller style or size.
+    /// This keeps the ScrollView fully SwiftUI-owned while narrowly configuring its
+    /// enclosing NSScrollView as a transparent, auto-hiding mini overlay scroller.
+    func thinOverlayScroller() -> some View {
+        background(OverlayScrollerConfigurator())
+    }
+}
+
+private struct OverlayScrollerConfigurator: NSViewRepresentable {
+    func makeNSView(context: Context) -> ConfiguratorView {
+        ConfiguratorView()
+    }
+
+    func updateNSView(_ nsView: ConfiguratorView, context: Context) {
+        nsView.scheduleConfiguration()
+    }
+
+    final class ConfiguratorView: NSView {
+        private var attempts = 0
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            scheduleConfiguration()
+        }
+
+        func scheduleConfiguration() {
+            DispatchQueue.main.async { [weak self] in self?.configureEnclosingScrollView() }
+        }
+
+        private func configureEnclosingScrollView() {
+            guard let scrollView = sequence(first: superview, next: { $0?.superview })
+                .compactMap({ $0 as? NSScrollView }).first else {
+                attempts += 1
+                if attempts < 4 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                        self?.configureEnclosingScrollView()
+                    }
+                }
+                return
+            }
+
+            scrollView.scrollerStyle = .overlay
+            scrollView.autohidesScrollers = true
+            scrollView.hasVerticalScroller = true
+            scrollView.hasHorizontalScroller = false
+            scrollView.drawsBackground = false
+            scrollView.backgroundColor = .clear
+            scrollView.verticalScroller?.controlSize = .mini
+            scrollView.verticalScroller?.knobStyle = .default
+        }
+    }
 }

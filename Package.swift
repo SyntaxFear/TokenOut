@@ -4,12 +4,19 @@ import PackageDescription
 let package = Package(
     name: "BurnBar",
     platforms: [.macOS(.v14)],
+    dependencies: [
+        .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.9.4"),
+    ],
     targets: [
         .target(name: "BurnBarCore"),
         .target(name: "BurnBarProviders", dependencies: ["BurnBarCore"]),
         .executableTarget(
             name: "BurnBar",
-            dependencies: ["BurnBarCore", "BurnBarProviders"],
+            dependencies: [
+                "BurnBarCore",
+                "BurnBarProviders",
+                .product(name: "Sparkle", package: "Sparkle"),
+            ],
             path: "Sources/BurnBarApp"
         ),
         .executableTarget(name: "BurnBarProbe", dependencies: ["BurnBarCore", "BurnBarProviders"]),

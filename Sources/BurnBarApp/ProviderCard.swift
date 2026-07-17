@@ -79,44 +79,38 @@ struct ProviderCard: View {
             .font(.system(size: 10))
             .foregroundStyle(.orange)
         }
-        ForEach(snapshot.windows, id: \.label) { window in
-            WindowRow(window: window)
-            if let projection = app.projection(for: providerID, window: window) {
-                Label {
-                    Text("on pace to hit the cap ≈ \(projection.hitsCapAt.formatted(date: .omitted, time: .shortened)) (+\(Int((projection.perHour * 100).rounded()))%/h)")
-                } icon: {
-                    Image(systemName: "speedometer")
+        if snapshot.windows.isEmpty {
+            LimitUnavailableView(message: limitMessage(in: snapshot))
+        } else {
+            ForEach(snapshot.windows, id: \.label) { window in
+                WindowRow(window: window)
+                if let projection = app.projection(for: providerID, window: window) {
+                    Label {
+                        Text("on pace to hit the cap ≈ \(projection.hitsCapAt.formatted(date: .omitted, time: .shortened)) (+\(Int((projection.perHour * 100).rounded()))%/h)")
+                    } icon: {
+                        Image(systemName: "speedometer")
+                    }
+                    .font(.system(size: 10))
+                    .foregroundStyle(.orange)
                 }
-                .font(.system(size: 10))
-                .foregroundStyle(.orange)
             }
         }
         if let tokens = snapshot.tokens {
-            tokenRow(tokens)
+            UsageSummaryTiles(tokens: tokens)
         }
-        ForEach(snapshot.detail, id: \.title) { line in
-            HStack {
-                Text(line.title).font(.system(size: 11)).foregroundStyle(.secondary)
-                Spacer()
-                Text(line.value).font(.system(size: 11, weight: .medium))
-                    .multilineTextAlignment(.trailing)
+        let visibleDetails = snapshot.detail.filter { $0.title != "Limits" }
+        if app.showProviderDetails, !visibleDetails.isEmpty {
+            DetailGridView(lines: visibleDetails)
+        }
+        if app.showBreakdowns {
+            ForEach(snapshot.breakdowns, id: \.title) { breakdown in
+                BreakdownView(breakdown: breakdown)
             }
         }
-        ForEach(snapshot.breakdowns, id: \.title) { breakdown in
-            BreakdownView(breakdown: breakdown)
-        }
-        if !snapshot.daily.isEmpty {
+        if app.showDailyCharts, !snapshot.daily.isEmpty {
             DailyChartView(daily: snapshot.daily)
         }
         if focused {
-            if let tokens = snapshot.tokens {
-                HStack {
-                    Text("This week").font(.system(size: 11)).foregroundStyle(.secondary)
-                    Spacer()
-                    Text("\(Format.tokens(tokens.weekTokens))\(tokens.weekCostUSD.map { " · \(tokens.costIsEstimated ? "~" : "")\(Format.usd($0))" } ?? "")")
-                        .font(.system(size: 11, weight: .medium).monospacedDigit())
-                }
-            }
             HStack {
                 Text("Updated").font(.system(size: 11)).foregroundStyle(.secondary)
                 Spacer()
@@ -126,23 +120,9 @@ struct ProviderCard: View {
         }
     }
 
-    private func tokenRow(_ tokens: TokenTotals) -> some View {
-        HStack {
-            Text("Tokens").font(.system(size: 11)).foregroundStyle(.secondary)
-            Spacer()
-            Text(tokenSummary(tokens))
-                .font(.system(size: 11, weight: .medium).monospacedDigit())
-        }
-    }
-
-    private func tokenSummary(_ tokens: TokenTotals) -> String {
-        var text = "\(Format.tokens(tokens.todayTokens)) today"
-        if let cost = tokens.todayCostUSD, cost > 0 {
-            text += " · \(tokens.costIsEstimated ? "~" : "")\(Format.usd(cost))"
-        } else if tokens.costIsEstimated && tokens.todayCostUSD == nil {
-            text = "~" + text
-        }
-        return text
+    private func limitMessage(in snapshot: UsageSnapshot) -> String {
+        snapshot.detail.first { $0.title == "Limits" }?.value
+            ?? "This provider does not expose a local quota signal."
     }
 
     private func statusMessage(icon: String, text: String) -> some View {

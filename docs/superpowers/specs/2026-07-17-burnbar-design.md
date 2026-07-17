@@ -59,7 +59,7 @@ Per-provider health: `ProviderStatus = .ok | .stale(since:) | .signedOut(help:) 
 ## 3. Providers (v1)
 
 ### Claude Code
-- **Credentials:** macOS Keychain item `Claude Code-credentials` (primary — confirmed present on this machine; file `~/.claude/.credentials.json` as fallback). Read-only; we never write back. First Keychain read triggers a one-time macOS permission prompt — onboarding explains it.
+- **Credentials:** macOS Keychain item `Claude Code-credentials` (primary — confirmed present on this machine; file `~/.claude/.credentials.json` as fallback). BurnBar normally reads it; when Anthropic rotates a refresh token, BurnBar uses Claude Code's scope/locking contract and writes the complete rotated credential back to that same source so the CLI is not invalidated. First Keychain access triggers a one-time macOS permission prompt — onboarding explains it.
 - **Limits:** `GET https://api.anthropic.com/api/oauth/usage` with the OAuth bearer token → 5-hour session window + weekly limits with utilization and reset timestamps.
 - **401 handling:** attempt token refresh against the public Claude Code OAuth token endpoint (same client id the CLI uses; refreshed token kept in memory only). If refresh fails → `.signedOut("Open Claude Code and run /login")`.
 - **Token/cost stats:** parse `~/.claude/projects/**/*.jsonl` transcripts (`message.usage` fields: input, output, cache read/write) → today/this-week totals and cost via a bundled pricing table (updatable with each app release). Parser tolerates schema drift: unknown fields ignored, entries without usage skipped.

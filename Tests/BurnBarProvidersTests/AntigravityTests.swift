@@ -46,6 +46,23 @@ private func makeFixtureDB(at url: URL, rows: [(blobText: String, size: Int)]) t
     #expect(gens[1].model == nil)
 }
 
+@Test func antigravityRejectsAppNamesAsModels() {
+    let falsePositive = AntigravityScanner.parseGeneration(
+        blob: Data("Claude Switcher.app)".utf8), size: 100)
+    #expect(falsePositive.model == nil)
+
+    let quotedInConversation = AntigravityScanner.parseGeneration(
+        blob: Data("Try Gemini 3.5 Flash (High) for this task".utf8), size: 100)
+    #expect(quotedInConversation.model == nil)
+}
+
+@Test func antigravityUsesConversationModificationDateAsTimestampFallback() {
+    let fallback = Date(timeIntervalSince1970: 1_800_000_000)
+    let generation = AntigravityScanner.parseGeneration(
+        blob: Data("no embedded date".utf8), size: 100, fallbackDate: fallback)
+    #expect(generation.timestamp == fallback)
+}
+
 @Test func antigravityBlobParsingTolerant() {
     let gen = AntigravityScanner.parseGeneration(blob: Data([0x00, 0x01, 0xFF]), size: 0)
     #expect(gen.timestamp == nil)

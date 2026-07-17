@@ -1,0 +1,21 @@
+# BurnBar
+
+BurnBar is a native macOS menu bar application for monitoring AI coding-tool usage.
+
+Official site: https://burnbar.scrubmac.app
+Source: https://github.com/SyntaxFear/BurnBar
+Download: https://github.com/SyntaxFear/BurnBar/releases/latest/download/BurnBar.dmg
+Privacy: https://burnbar.scrubmac.app/privacy
+
+Supported tools:
+- Claude Code
+- OpenAI Codex
+- Google Antigravity
+
+Core properties:
+- Native SwiftUI menu bar application
+- Local-first usage history
+- No BurnBar account
+- No analytics or advertising SDKs
+- Signed Sparkle automatic updates
+- macOS 14 or later

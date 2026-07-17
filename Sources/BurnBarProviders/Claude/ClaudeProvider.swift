@@ -24,10 +24,9 @@ public struct ClaudeProvider: UsageProvider {
     public func fetchUsage() async throws -> UsageSnapshot {
         let signedOutHelp = "Open a terminal, run `claude`, and sign in with /login."
 
-        // Token strategy: ADOPT Claude Code's live token, never preemptively refresh.
-        // Anthropic rotates refresh tokens on use, so refreshing here invalidates the
-        // CLI's copy and signs BOTH apps out — the "login every 30 minutes" bug.
-        // The CLI refreshes its own token whenever the user works; we just re-read it.
+        // Prefer the credential Claude Code most recently persisted. A cached token can
+        // bridge a brief Keychain update race, but any refresh must be persisted because
+        // Anthropic rotates refresh tokens on every successful grant.
         var candidates: [ClaudeOAuth] = []
         if let cached = await ClaudeTokenCache.shared.get() { candidates.append(cached) }
         guard let live = ClaudeCredentials.load() else {
@@ -57,7 +56,8 @@ public struct ClaudeProvider: UsageProvider {
             }
         }
         if windows == nil {
-            // Every candidate got a true 401: one refresh grant, cached for reuse.
+            // Every candidate got a true 401: perform one Claude-compatible, locked
+            // refresh and persist the rotated token before using it.
             guard let refreshed = await ClaudeCredentials.refresh(live) else {
                 await ClaudeTokenCache.shared.set(nil)
                 throw ProviderError.signedOut(help: signedOutHelp)

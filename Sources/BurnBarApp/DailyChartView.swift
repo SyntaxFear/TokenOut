@@ -21,16 +21,19 @@ struct DailyChartView: View {
          visible.contains { $0.costIsEstimated })
     }
 
+    private var hasCostData: Bool { visible.contains { $0.costUSD > 0 } }
+    private var effectiveMetric: ChartMetric { hasCostData ? app.chartMetric : .tokens }
+
     /// Chart value, highlight, and peak all follow the SAME selected metric —
     /// mixing token-peaks with dollar-labels is exactly what confused users.
     private func value(_ stat: DayStat) -> Double {
-        app.chartMetric == .cost ? stat.costUSD : Double(stat.tokens)
+        effectiveMetric == .cost ? stat.costUSD : Double(stat.tokens)
     }
     private var peakDay: DayStat? { visible.max { value($0) < value($1) } }
     private var priciestDay: DayStat? { visible.max { $0.costUSD < $1.costUSD } }
 
     private func compactValue(_ raw: Double) -> String {
-        app.chartMetric == .cost
+        effectiveMetric == .cost
             ? (raw >= 1000 ? String(format: "$%.1fK", raw / 1000) : String(format: "$%.0f", raw))
             : Format.tokens(Int(raw))
     }
@@ -49,14 +52,24 @@ struct DailyChartView: View {
                     .pickerStyle(.segmented)
                     .labelsHidden()
                     .controlSize(.mini)
-                    Picker("", selection: $app.chartMetric) {
-                        ForEach(ChartMetric.allCases, id: \.self) { Text($0.title).tag($0) }
+                    if hasCostData {
+                        Picker("", selection: $app.chartMetric) {
+                            ForEach(ChartMetric.allCases, id: \.self) { Text($0.title).tag($0) }
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .controlSize(.mini)
+                        .fixedSize()
+                        .help("Plot charts by dollars or tokens")
+                    } else {
+                        Text("TOKENS")
+                            .font(.system(size: 8.5, weight: .semibold))
+                            .tracking(0.5)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(.quaternary.opacity(0.45), in: Capsule())
                     }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
-                    .controlSize(.mini)
-                    .fixedSize()
-                    .help("Plot charts by dollars or tokens")
                 }
 
                 if visible.isEmpty {
@@ -86,11 +99,16 @@ struct DailyChartView: View {
     }
 
     private var statTiles: some View {
-        let tiles: [(String, String)] = [
+        let tiles: [(String, String)] = hasCostData ? [
             ("Today", Format.usd(todayStat?.costUSD ?? 0)),
             ("\(app.dailyRange)d cost", Format.usd(totals.cost)),
             ("\(app.dailyRange)d tokens", Format.tokens(totals.tokens)),
             ("Peak day", Format.usd(priciestDay?.costUSD ?? 0)),
+        ] : [
+            ("Today", Format.tokens(todayStat?.tokens ?? 0)),
+            ("\(app.dailyRange)d tokens", Format.tokens(totals.tokens)),
+            ("Active days", "\(visible.count)"),
+            ("Peak day", Format.tokens(peakDay?.tokens ?? 0)),
         ]
         return LazyVGrid(columns: [GridItem(.flexible(), spacing: 6), GridItem(.flexible())],
                          spacing: 6) {
@@ -100,9 +118,7 @@ struct DailyChartView: View {
                         .font(.system(size: 8.5, weight: .semibold))
                         .tracking(0.6)
                         .foregroundStyle(.tertiary)
-                    Text(tile.1)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded).monospacedDigit())
-                        .contentTransition(.numericText())
+                    MetricValueText(value: tile.1)
                         .foregroundStyle(tile.0 == "Today" ? AnyShapeStyle(.orange.gradient)
                                                            : AnyShapeStyle(.primary))
                 }
@@ -119,10 +135,10 @@ struct DailyChartView: View {
     private var infoLine: some View {
         HStack {
             if let day = hovered {
-                Text("\(day.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))) · \(Format.tokens(day.tokens)) tok · \(Format.usd(day.costUSD))\(day.topModelText.map { " · \($0)" } ?? "")")
+                Text("\(day.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))) · \(Format.tokens(day.tokens)) tok\(hasCostData ? " · \(Format.usd(day.costUSD))" : "")\(day.topModelText.map { " · \($0)" } ?? "")")
                     .foregroundStyle(.primary)
             } else {
-                Text("\(Format.tokens(totals.tokens)) tokens · \(Format.usd(totals.cost))")
+                Text("\(Format.tokens(totals.tokens)) tokens\(hasCostData ? " · \(Format.usd(totals.cost))" : " · estimated locally")")
                 Spacer()
                 if let peak = peakDay {
                     Text("peak \(peak.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))")
@@ -139,7 +155,7 @@ struct DailyChartView: View {
         Chart(visible, id: \.day) { stat in
             BarMark(
                 x: .value("Day", stat.day, unit: .day),
-                y: .value(app.chartMetric == .cost ? "Cost" : "Tokens", value(stat))
+                y: .value(effectiveMetric == .cost ? "Cost" : "Tokens", value(stat))
             )
             .foregroundStyle(
                 stat.day == hovered?.day ? AnyShapeStyle(.yellow.gradient)

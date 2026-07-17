@@ -1,57 +1,81 @@
-# BurnBar 🔥
+# BurnBar
 
-**Your token burn, live in the menu bar.** A native macOS app that tracks usage,
-rate-limit windows, and API-equivalent cost across AI coding tools.
+**Know your AI burn before limits hit.** BurnBar is a private native macOS menu bar app for tracking usage, rate-limit windows, tokens, and API-equivalent cost across AI coding tools.
 
-| Provider | Limits | Tokens & cost |
+[Website](https://burnbar.scrubmac.app) | [Download](https://github.com/SyntaxFear/BurnBar/releases/latest/download/BurnBar.dmg) | [Privacy](https://burnbar.scrubmac.app/privacy)
+
+## Supported providers
+
+| Provider | Limits | Local activity |
 |---|---|---|
-| **Claude Code** | 5-hour session, weekly, per-model scoped windows (live from the official usage endpoint) | Local transcript parsing with per-model pricing, incl. 5m/1h cache-write rates |
-| **Codex** | Session / weekly / monthly rate windows (live from the endpoint Codex itself uses) | Plan badge |
-| **Antigravity** | Not exposed locally by Google — activity stats instead | Sessions, turns, estimated tokens from local conversation DBs |
+| **Claude Code** | Live session, weekly, and scoped windows from Claude Code's official usage endpoint | Transcript tokens, model breakdowns, and cost estimates |
+| **Codex** | Live primary and secondary rate-limit windows | Local rollout history and plan details |
+| **Antigravity** | Google does not expose a local quota signal | Sessions, turns, daily activity, and estimated local tokens |
 
-The menu bar shows a literal *burn bar*: flame + draining gauge + percent for the
-**tightest** window across enabled tools (configurable). Amber at 80%, red at 95%,
-notifications at both thresholds, refill countdowns everywhere.
+The menu bar can show the tightest enabled limit, one provider, or compact readings for every provider. The popover includes configurable combined totals, provider details, breakdowns, daily charts, refill countdowns, refresh cadence, and notification thresholds.
+
+Decimal precision is visually quieter throughout metric tiles: the fractional part of values such as `$5125.33` is rendered smaller than the primary number.
 
 ## Privacy
 
-Everything stays on this Mac. BurnBar reads each tool's own local state
-(Claude Code's Keychain item and `~/.claude/projects` transcripts, `~/.codex/auth.json`,
-`~/.gemini/antigravity` conversation DBs) and talks **only** to each provider's own API
-with your existing sign-in. Credentials are never written, stored, or sent anywhere else.
-No analytics, no telemetry, no accounts.
+BurnBar reads each tool's existing local state and contacts only that provider's official service when a live quota refresh is available. It does not include analytics, telemetry, advertising SDKs, a BurnBar account, or cloud sync.
 
-macOS shows one Keychain prompt on first run ("BurnBar wants to access
-'Claude Code-credentials'") — click **Always Allow**.
+Claude Code credentials remain in Claude Code's original Keychain item. When Claude rotates its OAuth refresh token, BurnBar persists the rotated credential back to that item so both apps remain signed in. macOS may show a Keychain access prompt on first use.
 
-## Build & install (local)
+## Requirements
 
-```sh
-swift test               # 28 tests
-./scripts/bundle.sh      # release build → dist/BurnBar.app (ad-hoc signed)
-./scripts/install-local.sh   # → /Applications/BurnBar.app + launch
-```
+- macOS 14 or later
+- Apple silicon or Intel Mac
+- At least one supported tool installed locally
 
-Dev utilities:
+## Build and test
 
 ```sh
-swift run BurnBarProbe all   # print raw usage-endpoint responses + decoded windows
-swift scripts/makeicon.swift # regenerate Support/AppIcon.icns
+swift test
+./script/build_and_run.sh --verify
 ```
+
+The production bundle is universal and embeds Sparkle:
+
+```sh
+SIGNING_IDENTITY='Developer ID Application: Levan Parastashvili (CNH4KYRW44)' ./scripts/bundle.sh
+./scripts/create-dmg.sh
+```
+
+Notarization uses a `notarytool` Keychain profile:
+
+```sh
+xcrun notarytool store-credentials BurnBarNotary
+NOTARY_PROFILE=BurnBarNotary ./scripts/notarize.sh
+./scripts/publish-appcast.sh 1.0.0
+```
+
+Developer utilities:
+
+```sh
+swift run BurnBarProbe all
+swift scripts/makeicon.swift
+```
+
+## Website
+
+The Next.js site lives in `website/`.
+
+```sh
+cd website
+npm install
+npm run dev
+npm run build
+```
+
+It includes metadata, structured data, Open Graph artwork, `robots.txt`, `sitemap.xml`, `llms.txt`, a privacy page, and the signed Sparkle appcast endpoint.
 
 ## Architecture
 
-SwiftPM, three targets: `BurnBarCore` (normalized models, pricing, store, refresh policy —
-pure logic, fully tested), `BurnBarProviders` (one folder per tool conforming to
-`UsageProvider`), `BurnBar` (SwiftUI `MenuBarExtra` app). Adding a provider touches zero
-UI code: conform to `UsageProvider`, append to the registry in `AppState`.
+The Swift package has three primary targets:
 
-Design docs: [spec](docs/superpowers/specs/2026-07-17-burnbar-design.md) ·
-[phase 1 plan](docs/superpowers/plans/2026-07-17-burnbar-phase1.md) ·
-[Antigravity research](docs/providers/antigravity.md)
+- `BurnBarCore`: normalized models, formatting, pricing, history, store, and refresh policy.
+- `BurnBarProviders`: provider implementations for Claude Code, Codex, and Antigravity.
+- `BurnBar`: the SwiftUI `MenuBarExtra` application, settings, notifications, and Sparkle updater.
 
-## Roadmap (phase 2 — public release)
-
-Blocked on an Apple Developer account: Developer ID signing + notarization, DMG,
-Sparkle auto-updates, Ed25519 offline licensing + trial, landing page (burnbar.dev).
-Backlog: Cursor/Copilot/Gemini CLI providers, usage history charts, widgets.
+Design and provider notes are available in [the product spec](docs/superpowers/specs/2026-07-17-burnbar-design.md), [the phase-one plan](docs/superpowers/plans/2026-07-17-burnbar-phase1.md), and [Antigravity research](docs/providers/antigravity.md).

@@ -121,6 +121,18 @@ final class AppState {
     var chartMetric: ChartMetric {
         didSet { UserDefaults.standard.set(chartMetric.rawValue, forKey: "chartMetric") }
     }
+    var showCombinedOverview: Bool {
+        didSet { UserDefaults.standard.set(showCombinedOverview, forKey: "showCombinedOverview") }
+    }
+    var showDailyCharts: Bool {
+        didSet { UserDefaults.standard.set(showDailyCharts, forKey: "showDailyCharts") }
+    }
+    var showBreakdowns: Bool {
+        didSet { UserDefaults.standard.set(showBreakdowns, forKey: "showBreakdowns") }
+    }
+    var showProviderDetails: Bool {
+        didSet { UserDefaults.standard.set(showProviderDetails, forKey: "showProviderDetails") }
+    }
     var cadence: RefreshCadence {
         didSet {
             UserDefaults.standard.set(cadence.rawValue, forKey: "cadence")
@@ -132,6 +144,15 @@ final class AppState {
             UserDefaults.standard.set(notificationsEnabled, forKey: "notificationsEnabled")
             if notificationsEnabled { notifier.requestAuthorization() }
         }
+    }
+    var warningThreshold: Double {
+        didSet { UserDefaults.standard.set(warningThreshold, forKey: "warningThreshold") }
+    }
+    var criticalThreshold: Double {
+        didSet { UserDefaults.standard.set(criticalThreshold, forKey: "criticalThreshold") }
+    }
+    var refillNotifications: Bool {
+        didSet { UserDefaults.standard.set(refillNotifications, forKey: "refillNotifications") }
     }
     var hasOnboarded: Bool {
         didSet { UserDefaults.standard.set(hasOnboarded, forKey: "hasOnboarded") }
@@ -153,9 +174,18 @@ final class AppState {
         popoverFocus = defaults.string(forKey: "popoverFocus").flatMap(ProviderID.init(rawValue:))
         chartMetric = defaults.string(forKey: "chartMetric")
             .flatMap(ChartMetric.init(rawValue:)) ?? .cost
+        showCombinedOverview = defaults.object(forKey: "showCombinedOverview") as? Bool ?? true
+        showDailyCharts = defaults.object(forKey: "showDailyCharts") as? Bool ?? true
+        showBreakdowns = defaults.object(forKey: "showBreakdowns") as? Bool ?? true
+        showProviderDetails = defaults.object(forKey: "showProviderDetails") as? Bool ?? true
         cadence = defaults.string(forKey: "cadence")
             .flatMap(RefreshCadence.init(rawValue:)) ?? .normal
         notificationsEnabled = defaults.object(forKey: "notificationsEnabled") as? Bool ?? true
+        let storedWarning = defaults.double(forKey: "warningThreshold")
+        warningThreshold = storedWarning > 0 ? storedWarning : 0.8
+        let storedCritical = defaults.double(forKey: "criticalThreshold")
+        criticalThreshold = storedCritical > 0 ? storedCritical : 0.95
+        refillNotifications = defaults.object(forKey: "refillNotifications") as? Bool ?? true
         hasOnboarded = defaults.bool(forKey: "hasOnboarded")
 
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -227,7 +257,13 @@ final class AppState {
             store.apply(result: .success(snapshot), for: id)
             history.record(snapshot: snapshot)
             if notificationsEnabled {
-                notifier.evaluate(snapshot: snapshot, displayName: provider.displayName)
+                notifier.evaluate(
+                    snapshot: snapshot,
+                    displayName: provider.displayName,
+                    warningThreshold: warningThreshold,
+                    criticalThreshold: criticalThreshold,
+                    refillNotifications: refillNotifications
+                )
             }
         } catch {
             failureCounts[id, default: 0] += 1

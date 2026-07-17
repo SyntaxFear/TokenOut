@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct BurnBarApp: App {
     @State private var app = AppState()
+    @State private var updates = UpdateController()
 
     var body: some Scene {
         MenuBarExtra {
@@ -18,7 +19,9 @@ struct BurnBarApp: App {
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView().environment(app)
+            SettingsView()
+                .environment(app)
+                .environment(updates)
         }
     }
 }

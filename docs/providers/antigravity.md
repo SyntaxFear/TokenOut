@@ -26,7 +26,9 @@ App: Google Antigravity 2.1.4 (`com.google.antigravity`), VS Code fork. Verified
 
 ## Provider strategy (implemented)
 
-Scan `conversations/*.db` with mtime in the last 8 days → per DB read `gen_metadata`
-(count, blob → first ISO date + model-name string, `size`) → bucket turns/est-tokens into
-today/week → snapshot with detail lines. Blob parsing is byte-scan (regex over lossy-UTF8),
-not full protobuf decoding — resilient to schema drift, degrades to counts-only.
+Scan `conversations/*.db` with mtime in the last 92 days → per DB read `gen_metadata`
+(count, blob → first ISO date + model-shaped identifier, `size`) → bucket turns and
+estimated tokens into today/week/daily history. When a row has no embedded timestamp,
+the conversation DB modification date is used as an explicit approximation. Blob parsing
+is a byte-scan (regex over lossy UTF-8), not full protobuf decoding — resilient to schema
+drift and guarded against app-name false positives such as `Claude Switcher.app`.

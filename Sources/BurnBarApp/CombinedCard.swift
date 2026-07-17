@@ -64,9 +64,7 @@ struct CombinedCard: View {
             Text(caption.uppercased())
                 .font(.system(size: 8, weight: .semibold)).tracking(0.5)
                 .foregroundStyle(.tertiary)
-            Text(text)
-                .font(.system(size: 14, weight: .semibold, design: .rounded).monospacedDigit())
-                .contentTransition(.numericText())
+            MetricValueText(value: text)
                 .foregroundStyle(accent ? AnyShapeStyle(.orange.gradient) : AnyShapeStyle(.primary))
         }
         .frame(maxWidth: .infinity, alignment: .leading)

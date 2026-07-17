@@ -3,3 +3,11 @@ dist/
 .DS_Store
 *.xcodeproj
 .swiftpm/
+website/node_modules/
+website/.next/
+Brand/**/*.json
+Brand/masters/
+Brand/previews/
+Brand/marketing/hero-product.png
+releases/old_updates/
+.codex/
