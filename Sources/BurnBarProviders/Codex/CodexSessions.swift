@@ -16,8 +16,11 @@ public struct CodexSessionStat: Sendable {
 public actor CodexSessionScanner {
     public static let shared = CodexSessionScanner()
     private var cache: [String: (mtime: Date, stat: CodexSessionStat?)] = [:]
-    private let root = FileManager.default.homeDirectoryForCurrentUser
-        .appending(path: ".codex/sessions")
+    /// Live sessions plus the archive Codex moves older rollouts into — without the
+    /// archive, most of the day-by-day history is invisible.
+    private let roots = [".codex/sessions", ".codex/archived_sessions"].map {
+        FileManager.default.homeDirectoryForCurrentUser.appending(path: $0)
+    }
 
     /// Estimated API-equivalent pricing for the GPT-5 family, USD per MTok.
     static func cost(of stat: CodexSessionStat) -> Double {
@@ -28,12 +31,15 @@ public actor CodexSessionScanner {
 
     public func recentSessions(withinDays days: Int = 92) -> [CodexSessionStat] {
         let cutoff = Date.now.addingTimeInterval(-Double(days) * 86400)
-        guard let enumerator = FileManager.default.enumerator(
-            at: root, includingPropertiesForKeys: [.contentModificationDateKey],
-            options: [.skipsHiddenFiles]) else { return [] }
         var stats: [CodexSessionStat] = []
         var liveKeys: Set<String> = []
-        for case let url as URL in enumerator
+        let urls = roots.flatMap { root -> [URL] in
+            guard let enumerator = FileManager.default.enumerator(
+                at: root, includingPropertiesForKeys: [.contentModificationDateKey],
+                options: [.skipsHiddenFiles]) else { return [] }
+            return enumerator.compactMap { $0 as? URL }
+        }
+        for url in urls
         where url.lastPathComponent.hasPrefix("rollout-") && url.pathExtension == "jsonl" {
             guard let mtime = try? url.resourceValues(forKeys: [.contentModificationDateKey])
                 .contentModificationDate, mtime > cutoff else { continue }

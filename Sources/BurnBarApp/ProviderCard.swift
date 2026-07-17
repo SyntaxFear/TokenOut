@@ -7,6 +7,8 @@ struct ProviderCard: View {
     var providerID: ProviderID
     var displayName: String
     var state: ProviderState
+    /// Single-provider focus mode: show extra rows the compact list omits.
+    var focused: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -92,6 +94,22 @@ struct ProviderCard: View {
         }
         if !snapshot.daily.isEmpty {
             DailyChartView(daily: snapshot.daily)
+        }
+        if focused {
+            if let tokens = snapshot.tokens {
+                HStack {
+                    Text("This week").font(.system(size: 11)).foregroundStyle(.secondary)
+                    Spacer()
+                    Text("\(Format.tokens(tokens.weekTokens))\(tokens.weekCostUSD.map { " · \(tokens.costIsEstimated ? "~" : "")\(Format.usd($0))" } ?? "")")
+                        .font(.system(size: 11, weight: .medium).monospacedDigit())
+                }
+            }
+            HStack {
+                Text("Updated").font(.system(size: 11)).foregroundStyle(.secondary)
+                Spacer()
+                Text(snapshot.fetchedAt.formatted(.relative(presentation: .named)))
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
+            }
         }
     }
 

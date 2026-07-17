@@ -13,15 +13,29 @@ struct PopoverView: View {
     }
 
     var body: some View {
+        @Bindable var app = app
         VStack(alignment: .leading, spacing: 10) {
             header
+            if visibleProviders.count > 1 {
+                Picker("", selection: $app.popoverFocus) {
+                    Text("All").tag(ProviderID?.none)
+                    ForEach(visibleProviders, id: \.id) { entry in
+                        Text(entry.name).tag(ProviderID?.some(entry.id))
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .controlSize(.small)
+            }
+            let shown = visibleProviders.filter { app.popoverFocus == nil || $0.id == app.popoverFocus }
             if visibleProviders.isEmpty {
                 emptyState
             } else {
-                ForEach(visibleProviders, id: \.id) { entry in
+                ForEach(shown, id: \.id) { entry in
                     ProviderCard(providerID: entry.id,
                                  displayName: entry.name,
-                                 state: app.store.states[entry.id] ?? ProviderState())
+                                 state: app.store.states[entry.id] ?? ProviderState(),
+                                 focused: app.popoverFocus == entry.id)
                 }
             }
             footer

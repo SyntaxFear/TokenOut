@@ -92,6 +92,10 @@ final class AppState {
     var dailyRange: Int {
         didSet { UserDefaults.standard.set(dailyRange, forKey: "dailyRange") }
     }
+    /// Popover focus: nil = all providers, or a single preferred provider.
+    var popoverFocus: ProviderID? {
+        didSet { UserDefaults.standard.set(popoverFocus?.rawValue ?? "all", forKey: "popoverFocus") }
+    }
     var cadence: RefreshCadence {
         didSet {
             UserDefaults.standard.set(cadence.rawValue, forKey: "cadence")
@@ -120,6 +124,7 @@ final class AppState {
         showRemaining = defaults.bool(forKey: "showRemaining")
         let storedRange = defaults.integer(forKey: "dailyRange")
         dailyRange = [7, 30, 60, 90].contains(storedRange) ? storedRange : 30
+        popoverFocus = defaults.string(forKey: "popoverFocus").flatMap(ProviderID.init(rawValue:))
         cadence = defaults.string(forKey: "cadence")
             .flatMap(RefreshCadence.init(rawValue:)) ?? .normal
         notificationsEnabled = defaults.object(forKey: "notificationsEnabled") as? Bool ?? true
