@@ -39,9 +39,33 @@ public struct ClaudeProvider: UsageProvider {
         let entries = await ClaudeTranscriptScanner.shared.recentEntries()
         let now = Date.now
         let cal = Calendar.current
-        let today = ClaudeTranscriptParser.total(entries: entries, in: cal.startOfDay(for: now)...now)
+        let todayRange = cal.startOfDay(for: now)...now
+        let today = ClaudeTranscriptParser.total(entries: entries, in: todayRange)
         let week = ClaudeTranscriptParser.total(
             entries: entries, in: now.addingTimeInterval(-7 * 86400)...now)
+
+        var breakdowns: [Breakdown] = []
+        let totalCostToday = max(today.costUSD, 0.01)
+        let byModel = ClaudeTranscriptParser.totals(entries: entries, in: todayRange) {
+            ClaudeTranscriptParser.modelFamily($0.model)
+        }
+        if byModel.count > 1 || (byModel.first.map { $0.costUSD > 0 } ?? false) {
+            breakdowns.append(Breakdown(title: "Today by model", rows: byModel.prefix(4).map {
+                Breakdown.Row(name: $0.name,
+                              valueText: "\(Format.tokens($0.tokens.total)) · \(Format.usd($0.costUSD))",
+                              fraction: $0.costUSD / totalCostToday)
+            }))
+        }
+        let byProject = ClaudeTranscriptParser.totals(entries: entries, in: todayRange) {
+            $0.project.isEmpty ? "other" : $0.project
+        }
+        if byProject.count > 1 {
+            breakdowns.append(Breakdown(title: "Today by project", rows: byProject.prefix(4).map {
+                Breakdown.Row(name: $0.name,
+                              valueText: "\(Format.tokens($0.tokens.total)) · \(Format.usd($0.costUSD))",
+                              fraction: $0.costUSD / totalCostToday)
+            }))
+        }
 
         return UsageSnapshot(
             providerID: .claude,
@@ -54,7 +78,8 @@ public struct ClaudeProvider: UsageProvider {
                 todayCostUSD: today.costUSD,
                 weekCostUSD: week.costUSD,
                 costIsEstimated: today.costIsEstimated || week.costIsEstimated
-            )
+            ),
+            breakdowns: breakdowns
         )
     }
 }

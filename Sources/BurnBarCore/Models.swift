@@ -51,6 +51,27 @@ public struct DetailLine: Codable, Sendable, Equatable {
     }
 }
 
+/// A grouped mini-table ("By model", "By project") rendered generically with tiny bars.
+public struct Breakdown: Codable, Sendable, Equatable {
+    public struct Row: Codable, Sendable, Equatable {
+        public var name: String
+        public var valueText: String
+        /// Share of the group's total, 0–1, for bar scaling.
+        public var fraction: Double
+        public init(name: String, valueText: String, fraction: Double) {
+            self.name = name
+            self.valueText = valueText
+            self.fraction = min(1, max(0, fraction))
+        }
+    }
+    public var title: String
+    public var rows: [Row]
+    public init(title: String, rows: [Row]) {
+        self.title = title
+        self.rows = rows
+    }
+}
+
 /// The normalized result every provider produces; the UI consumes nothing else.
 public struct UsageSnapshot: Codable, Sendable, Equatable {
     public var providerID: ProviderID
@@ -59,15 +80,33 @@ public struct UsageSnapshot: Codable, Sendable, Equatable {
     public var windows: [LimitWindow]
     public var tokens: TokenTotals?
     public var detail: [DetailLine]
+    public var breakdowns: [Breakdown]
 
     public init(providerID: ProviderID, fetchedAt: Date, accountLabel: String?,
-                windows: [LimitWindow], tokens: TokenTotals?, detail: [DetailLine] = []) {
+                windows: [LimitWindow], tokens: TokenTotals?, detail: [DetailLine] = [],
+                breakdowns: [Breakdown] = []) {
         self.providerID = providerID
         self.fetchedAt = fetchedAt
         self.accountLabel = accountLabel
         self.windows = windows
         self.tokens = tokens
         self.detail = detail
+        self.breakdowns = breakdowns
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case providerID, fetchedAt, accountLabel, windows, tokens, detail, breakdowns
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        providerID = try c.decode(ProviderID.self, forKey: .providerID)
+        fetchedAt = try c.decode(Date.self, forKey: .fetchedAt)
+        accountLabel = try c.decodeIfPresent(String.self, forKey: .accountLabel)
+        windows = try c.decode([LimitWindow].self, forKey: .windows)
+        tokens = try c.decodeIfPresent(TokenTotals.self, forKey: .tokens)
+        detail = try c.decodeIfPresent([DetailLine].self, forKey: .detail) ?? []
+        breakdowns = try c.decodeIfPresent([Breakdown].self, forKey: .breakdowns) ?? []
     }
 }
 

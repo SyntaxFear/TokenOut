@@ -19,7 +19,8 @@ struct PopoverView: View {
                 emptyState
             } else {
                 ForEach(visibleProviders, id: \.id) { entry in
-                    ProviderCard(displayName: entry.name,
+                    ProviderCard(providerID: entry.id,
+                                 displayName: entry.name,
                                  state: app.store.states[entry.id] ?? ProviderState())
                 }
             }
@@ -27,6 +28,7 @@ struct PopoverView: View {
         }
         .padding(12)
         .frame(width: 340)
+        .onAppear { app.refreshIfStale() }
     }
 
     private var header: some View {

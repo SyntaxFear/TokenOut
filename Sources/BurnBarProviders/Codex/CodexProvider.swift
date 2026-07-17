@@ -39,13 +39,17 @@ public struct CodexProvider: UsageProvider {
             throw ProviderError.decoding("no rate-limit windows in usage response")
         }
         let plan = CodexUsageAPI.decodePlan(from: data) ?? auth.planType
+        var detail = plan.map { [DetailLine(title: "Plan", value: $0.capitalized)] } ?? []
+        if let credits = CodexUsageAPI.decodeCredits(from: data) {
+            detail.append(DetailLine(title: "Credits", value: credits))
+        }
         return UsageSnapshot(
             providerID: .codex,
             fetchedAt: .now,
             accountLabel: plan?.capitalized,
             windows: windows,
             tokens: nil,
-            detail: plan.map { [DetailLine(title: "Plan", value: $0.capitalized)] } ?? []
+            detail: detail
         )
     }
 }

@@ -18,8 +18,24 @@ final class Notifier {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
     }
 
+    private var lastFractions: [String: Double] = [:]
+
     func evaluate(snapshot: UsageSnapshot, displayName: String) {
         guard isBundled else { return }
+        // Refill detection: a big downward jump from a loaded window means it reset.
+        for window in snapshot.windows {
+            let key = "\(snapshot.providerID.rawValue)|\(window.label)"
+            if let previous = lastFractions[key],
+               previous >= 0.5, window.usedFraction < previous - 0.3 {
+                let content = UNMutableNotificationContent()
+                content.title = "\(displayName) \(window.label) refilled 🔥"
+                content.body = "Back to \(Format.pct(window.usedFraction)) — burn away."
+                UNUserNotificationCenter.current().add(
+                    UNNotificationRequest(identifier: UUID().uuidString,
+                                          content: content, trigger: nil))
+            }
+            lastFractions[key] = window.usedFraction
+        }
         for window in snapshot.windows {
             for threshold in thresholds where window.usedFraction >= threshold {
                 let cycle = window.resetsAt.map { String(Int($0.timeIntervalSince1970)) } ?? "static"

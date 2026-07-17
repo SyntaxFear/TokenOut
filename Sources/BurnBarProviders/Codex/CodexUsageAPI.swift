@@ -50,6 +50,18 @@ public enum CodexUsageAPI {
         return root["plan_type"] as? String
     }
 
+    /// Human-readable credits line, when the account has any credit signal worth showing.
+    public static func decodeCredits(from data: Data) -> String? {
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let credits = root["credits"] as? [String: Any] else { return nil }
+        if (credits["unlimited"] as? Bool) == true { return "Unlimited" }
+        if let balance = (credits["balance"] as? NSNumber)?.doubleValue {
+            return Format.usd(balance)
+        }
+        if (credits["has_credits"] as? Bool) == true { return "Available" }
+        return nil
+    }
+
     public static func fetch(token: String, accountID: String?) async throws -> Data {
         var request = URLRequest(url: endpoint)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")

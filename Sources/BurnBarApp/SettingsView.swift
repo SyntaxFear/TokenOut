@@ -37,6 +37,12 @@ struct SettingsView: View {
                         Text(metric.title).tag(metric)
                     }
                 }
+                Picker("Style", selection: $app.menuBarStyle) {
+                    ForEach(MenuBarStyle.allCases, id: \.self) { style in
+                        Text(style.title).tag(style)
+                    }
+                }
+                Toggle("Show remaining instead of used", isOn: $app.showRemaining)
             }
 
             Section("Refresh") {

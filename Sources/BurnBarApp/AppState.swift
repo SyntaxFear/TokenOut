@@ -4,6 +4,19 @@ import Observation
 import BurnBarCore
 import BurnBarProviders
 
+enum MenuBarStyle: String, CaseIterable {
+    case iconPercent, iconOnly, percentOnly, allProviders
+
+    var title: String {
+        switch self {
+        case .iconPercent: "Flame + percent"
+        case .iconOnly: "Flame only"
+        case .percentOnly: "Percent only"
+        case .allProviders: "All providers"
+        }
+    }
+}
+
 enum MenuBarMetric: String, CaseIterable {
     case tightest
     case claude, codex, antigravity
@@ -51,6 +64,7 @@ enum RefreshCadence: String, CaseIterable {
 @Observable
 final class AppState {
     let store = UsageStore()
+    let history = HistoryStore()
     let providers: [any UsageProvider] = [ClaudeProvider(), CodexProvider(), AntigravityProvider()]
     private(set) var installed: Set<ProviderID> = []
     private var refreshTasks: [ProviderID: Task<Void, Never>] = [:]
@@ -67,6 +81,12 @@ final class AppState {
     }
     var menuBarMetric: MenuBarMetric {
         didSet { UserDefaults.standard.set(menuBarMetric.rawValue, forKey: "menuBarMetric") }
+    }
+    var menuBarStyle: MenuBarStyle {
+        didSet { UserDefaults.standard.set(menuBarStyle.rawValue, forKey: "menuBarStyle") }
+    }
+    var showRemaining: Bool {
+        didSet { UserDefaults.standard.set(showRemaining, forKey: "showRemaining") }
     }
     var cadence: RefreshCadence {
         didSet {
@@ -91,6 +111,9 @@ final class AppState {
         enabledProviders = storedEnabled.map(Set.init) ?? Set(ProviderID.allCases)
         menuBarMetric = defaults.string(forKey: "menuBarMetric")
             .flatMap(MenuBarMetric.init(rawValue:)) ?? .tightest
+        menuBarStyle = defaults.string(forKey: "menuBarStyle")
+            .flatMap(MenuBarStyle.init(rawValue:)) ?? .iconPercent
+        showRemaining = defaults.bool(forKey: "showRemaining")
         cadence = defaults.string(forKey: "cadence")
             .flatMap(RefreshCadence.init(rawValue:)) ?? .normal
         notificationsEnabled = defaults.object(forKey: "notificationsEnabled") as? Bool ?? true
@@ -144,6 +167,7 @@ final class AppState {
             let snapshot = try await provider.fetchUsage()
             failureCounts[id] = 0
             store.apply(result: .success(snapshot), for: id)
+            history.record(snapshot: snapshot)
             if notificationsEnabled {
                 notifier.evaluate(snapshot: snapshot, displayName: provider.displayName)
             }
@@ -164,6 +188,42 @@ final class AppState {
 
     func refreshAll() {
         restartLoops()
+    }
+
+    /// Popover-open refresh: only when the newest data is older than 45 s.
+    func refreshIfStale() {
+        let newest = store.states.values.compactMap(\.snapshot?.fetchedAt).max()
+        guard newest.map({ Date.now.timeIntervalSince($0) > 45 }) ?? true else { return }
+        refreshAll()
+    }
+
+    /// Compact per-provider readings for the all-providers menu bar style.
+    var compactReadings: [(letter: String, fraction: Double)] {
+        let letters: [ProviderID: String] = [.claude: "C", .codex: "X", .antigravity: "A"]
+        return ProviderID.allCases.compactMap { id in
+            guard enabledProviders.contains(id), installed.contains(id),
+                  let snapshot = store.states[id]?.snapshot,
+                  let tightest = UsageMath.tightest(in: [snapshot]) else { return nil }
+            return (letters[id] ?? "?", tightest.window.usedFraction)
+        }
+    }
+
+    /// Burn-rate projection for a provider's session window, when meaningful.
+    func projection(for id: ProviderID, window: LimitWindow) -> BurnRate.Projection? {
+        guard window.kind == .session else { return nil }
+        let samples = history.samples(for: id, since: Date.now.addingTimeInterval(-3600))
+            .compactMap { sample in sample.fractions[window.label].map { (sample.timestamp, $0) } }
+        guard let projection = BurnRate.projection(samples: samples) else { return nil }
+        if let resetsAt = window.resetsAt, projection.hitsCapAt >= resetsAt { return nil }
+        return projection
+    }
+
+    /// 24h sparkline series for a provider's primary window.
+    func sparkline(for id: ProviderID) -> [(Date, Double)] {
+        let samples = history.samples(for: id, since: Date.now.addingTimeInterval(-24 * 3600))
+        guard let label = store.states[id]?.snapshot?.windows.first(where: { $0.kind == .session })?.label
+            ?? store.states[id]?.snapshot?.windows.first?.label else { return [] }
+        return samples.compactMap { sample in sample.fractions[label].map { (sample.timestamp, $0) } }
     }
 
     // MARK: Menu bar metric

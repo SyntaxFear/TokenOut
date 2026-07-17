@@ -1,12 +1,35 @@
-// burnbar-probe — dev CLI that prints raw usage-endpoint responses so real
-// fixtures can be captured and decoders verified against reality.
-// Usage: burnbar-probe [claude|codex|all]   (default: all)
+// burnbar-probe — dev CLI: raw usage-endpoint responses for fixture capture,
+// plus a machine-readable status mode for scripts.
+// Usage: burnbar-probe [claude|codex|antigravity|all|status]   (default: all)
+//        burnbar-probe status   → normalized snapshots for all providers as JSON
 
 import Foundation
 import BurnBarCore
 import BurnBarProviders
 
 let mode = CommandLine.arguments.dropFirst().first ?? "all"
+
+func printStatusJSON() async {
+    let providers: [any UsageProvider] = [ClaudeProvider(), CodexProvider(), AntigravityProvider()]
+    var snapshots: [String: UsageSnapshot] = [:]
+    var errors: [String: String] = [:]
+    for provider in providers where await provider.detectInstallation() {
+        let id = type(of: provider).id.rawValue
+        do { snapshots[id] = try await provider.fetchUsage() }
+        catch { errors[id] = String(describing: error) }
+    }
+    struct StatusOutput: Codable {
+        var generatedAt: Date
+        var providers: [String: UsageSnapshot]
+        var errors: [String: String]
+    }
+    let encoder = JSONEncoder.burnBar
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+    let output = StatusOutput(generatedAt: .now, providers: snapshots, errors: errors)
+    if let data = try? encoder.encode(output) {
+        print(String(decoding: data, as: UTF8.self))
+    }
+}
 
 func printJSON(_ data: Data) {
     if let object = try? JSONSerialization.jsonObject(with: data),
@@ -113,12 +136,16 @@ func probeAntigravity() async {
 
 await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
     Task {
-        if mode == "claude" || mode == "all" {
-            await probeClaude()
-            await probeTranscripts()
+        if mode == "status" {
+            await printStatusJSON()
+        } else {
+            if mode == "claude" || mode == "all" {
+                await probeClaude()
+                await probeTranscripts()
+            }
+            if mode == "codex" || mode == "all" { await probeCodex() }
+            if mode == "antigravity" || mode == "all" { await probeAntigravity() }
         }
-        if mode == "codex" || mode == "all" { await probeCodex() }
-        if mode == "antigravity" || mode == "all" { await probeAntigravity() }
         done.resume()
     }
 }

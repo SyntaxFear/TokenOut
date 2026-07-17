@@ -6,15 +6,41 @@ import BurnBarCore
 /// image so the system tints it correctly in light/dark menu bars.
 struct MenuBarLabel: View {
     var reading: AppState.MenuBarReading?
+    var style: MenuBarStyle = .iconPercent
+    var showRemaining: Bool = false
+    var compact: [(letter: String, fraction: Double)] = []
+
+    private func displayed(_ fraction: Double) -> Double {
+        showRemaining ? 1 - fraction : fraction
+    }
 
     var body: some View {
         HStack(spacing: 3) {
-            Image(nsImage: Self.barImage(fraction: reading?.fraction))
-            if let reading {
-                Text(Format.pct(reading.fraction))
-                    .font(.system(size: 12, weight: .medium).monospacedDigit())
+            switch style {
+            case .iconPercent:
+                Image(nsImage: Self.barImage(fraction: reading?.fraction))
+                if let reading { percentText(reading.fraction) }
+            case .iconOnly:
+                Image(nsImage: Self.barImage(fraction: reading?.fraction))
+            case .percentOnly:
+                if let reading { percentText(reading.fraction) }
+                else { Image(nsImage: Self.barImage(fraction: nil)) }
+            case .allProviders:
+                Image(nsImage: Self.barImage(fraction: reading?.fraction))
+                if compact.isEmpty, let reading {
+                    percentText(reading.fraction)
+                } else {
+                    Text(compact.map { "\($0.letter)\(Int((displayed($0.fraction) * 100).rounded()))" }
+                        .joined(separator: " "))
+                        .font(.system(size: 11, weight: .medium).monospacedDigit())
+                }
             }
         }
+    }
+
+    private func percentText(_ fraction: Double) -> some View {
+        Text(Format.pct(displayed(fraction)))
+            .font(.system(size: 12, weight: .medium).monospacedDigit())
     }
 
     static func barImage(fraction: Double?) -> NSImage {

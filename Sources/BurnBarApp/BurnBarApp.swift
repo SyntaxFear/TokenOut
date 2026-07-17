@@ -10,7 +10,10 @@ struct BurnBarApp: App {
                 .environment(app)
                 .onAppear { OnboardingWindow.showIfNeeded(app: app) }
         } label: {
-            MenuBarLabel(reading: app.menuBarReading)
+            MenuBarLabel(reading: app.menuBarReading,
+                         style: app.menuBarStyle,
+                         showRemaining: app.showRemaining,
+                         compact: app.compactReadings)
         }
         .menuBarExtraStyle(.window)
 

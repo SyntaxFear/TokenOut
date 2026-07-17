@@ -1,7 +1,10 @@
 import SwiftUI
+import Charts
 import BurnBarCore
 
 struct ProviderCard: View {
+    @Environment(AppState.self) private var app
+    var providerID: ProviderID
     var displayName: String
     var state: ProviderState
 
@@ -62,7 +65,17 @@ struct ProviderCard: View {
     private func content(_ snapshot: UsageSnapshot) -> some View {
         ForEach(snapshot.windows, id: \.label) { window in
             WindowRow(window: window)
+            if let projection = app.projection(for: providerID, window: window) {
+                Label {
+                    Text("on pace to hit the cap ≈ \(projection.hitsCapAt.formatted(date: .omitted, time: .shortened)) (+\(Int((projection.perHour * 100).rounded()))%/h)")
+                } icon: {
+                    Image(systemName: "speedometer")
+                }
+                .font(.system(size: 10))
+                .foregroundStyle(.orange)
+            }
         }
+        sparkline
         if let tokens = snapshot.tokens {
             tokenRow(tokens)
         }
@@ -72,6 +85,34 @@ struct ProviderCard: View {
                 Spacer()
                 Text(line.value).font(.system(size: 11, weight: .medium))
                     .multilineTextAlignment(.trailing)
+            }
+        }
+        ForEach(snapshot.breakdowns, id: \.title) { breakdown in
+            BreakdownView(breakdown: breakdown)
+        }
+    }
+
+    @ViewBuilder
+    private var sparkline: some View {
+        let series = app.sparkline(for: providerID)
+        if series.count >= 5 {
+            Chart(Array(series.enumerated()), id: \.offset) { _, point in
+                AreaMark(x: .value("t", point.0), y: .value("used", point.1))
+                    .foregroundStyle(.orange.opacity(0.18))
+                LineMark(x: .value("t", point.0), y: .value("used", point.1))
+                    .foregroundStyle(.orange)
+                    .lineStyle(StrokeStyle(lineWidth: 1.5))
+            }
+            .chartYScale(domain: 0...1)
+            .chartXAxis(.hidden)
+            .chartYAxis(.hidden)
+            .frame(height: 30)
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+            .overlay(alignment: .topLeading) {
+                Text("24 h")
+                    .font(.system(size: 8, weight: .medium))
+                    .foregroundStyle(.tertiary)
+                    .padding(2)
             }
         }
     }
@@ -101,6 +142,40 @@ struct ProviderCard: View {
             Text(text).font(.system(size: 11)).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
+    }
+}
+
+struct BreakdownView: View {
+    var breakdown: Breakdown
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(breakdown.title.uppercased())
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(.tertiary)
+            ForEach(breakdown.rows, id: \.name) { row in
+                HStack(spacing: 6) {
+                    Text(row.name)
+                        .font(.system(size: 10.5, weight: .medium))
+                        .lineLimit(1)
+                        .frame(width: 92, alignment: .leading)
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(.quaternary.opacity(0.6))
+                            Capsule().fill(.orange.gradient.opacity(0.75))
+                                .frame(width: max(2, geo.size.width * row.fraction))
+                        }
+                    }
+                    .frame(height: 4)
+                    Text(row.valueText)
+                        .font(.system(size: 10).monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .layoutPriority(1)
+                }
+            }
+        }
+        .padding(.top, 2)
     }
 }
 

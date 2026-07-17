@@ -7,6 +7,8 @@ public struct TranscriptEntry: Sendable {
     public var model: String
     public var timestamp: Date
     public var usage: TokenUsage
+    /// Display name of the project the session belongs to ("" when unknown).
+    public var project: String = ""
 }
 
 public enum ClaudeTranscriptParser {
@@ -26,9 +28,24 @@ public enum ClaudeTranscriptParser {
         return isoFractional.date(from: trimmed) ?? isoPlain.date(from: trimmed)
     }
 
+    /// Turns Claude Code's encoded project dir ("-Users-x-Desktop-my-app") into a
+    /// readable label ("my-app") by stripping known location prefixes.
+    public static func projectLabel(fromEncodedDir dir: String) -> String {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+            .replacingOccurrences(of: "/", with: "-")
+        var prefixes = ["Desktop", "Documents", "Downloads", "Developer", "Projects", "src", "code"]
+            .map { "\(home)-\($0)-" }
+        prefixes.append("\(home)-")
+        for prefix in prefixes where dir.hasPrefix(prefix) {
+            let stripped = String(dir.dropFirst(prefix.count))
+            if !stripped.isEmpty { return stripped }
+        }
+        return dir.hasPrefix("-") ? String(dir.dropFirst()) : dir
+    }
+
     /// Parse one transcript's JSONL text. Malformed lines and entries without usage are
     /// skipped; streamed duplicates (same message id) keep the last occurrence.
-    public static func parse(_ text: String) -> [TranscriptEntry] {
+    public static func parse(_ text: String, project: String = "") -> [TranscriptEntry] {
         var byID: [String: TranscriptEntry] = [:]
         var order: [String] = []
         for line in text.split(separator: "\n", omittingEmptySubsequences: true) {
@@ -63,7 +80,8 @@ public enum ClaudeTranscriptParser {
                 messageID: id,
                 model: (message["model"] as? String) ?? "unknown",
                 timestamp: ts,
-                usage: usage
+                usage: usage,
+                project: project
             )
         }
         return order.compactMap { byID[$0] }
@@ -84,6 +102,36 @@ public enum ClaudeTranscriptParser {
             if cost.isEstimated { result.costIsEstimated = true }
         }
         return result
+    }
+
+    public struct GroupTotal: Sendable, Equatable {
+        public var name: String
+        public var tokens: TokenUsage
+        public var costUSD: Double
+    }
+
+    /// Cost/token totals grouped by a key (model family or project), sorted by cost desc.
+    public static func totals(entries: [TranscriptEntry], in range: ClosedRange<Date>,
+                              by key: (TranscriptEntry) -> String) -> [GroupTotal] {
+        var groups: [String: GroupTotal] = [:]
+        for entry in entries where range.contains(entry.timestamp) {
+            let name = key(entry)
+            var group = groups[name] ?? GroupTotal(name: name, tokens: TokenUsage(), costUSD: 0)
+            group.tokens = group.tokens + entry.usage
+            group.costUSD += Pricing.cost(model: entry.model, usage: entry.usage).usd
+            groups[name] = group
+        }
+        return groups.values.sorted { $0.costUSD > $1.costUSD }
+    }
+
+    /// "claude-opus-4-8" → "Opus 4.8", "claude-fable-5" → "Fable 5".
+    public static func modelFamily(_ id: String) -> String {
+        let trimmed = id.hasPrefix("claude-") ? String(id.dropFirst(7)) : id
+        let parts = trimmed.split(separator: "-").prefix { $0.range(of: #"^\d{8}$"#, options: .regularExpression) == nil }
+        let name = parts.enumerated().map { index, part in
+            index == 0 ? part.capitalized : String(part)
+        }.joined(separator: " ")
+        return name.replacingOccurrences(of: #" (\d) (\d)"#, with: " $1.$2", options: .regularExpression)
     }
 }
 
@@ -111,7 +159,9 @@ public actor ClaudeTranscriptScanner {
             if let cached = cache[key], cached.mtime == mtime {
                 all.append(contentsOf: cached.entries)
             } else if let text = try? String(contentsOf: url, encoding: .utf8) {
-                let entries = ClaudeTranscriptParser.parse(text)
+                let project = ClaudeTranscriptParser.projectLabel(
+                    fromEncodedDir: url.deletingLastPathComponent().lastPathComponent)
+                let entries = ClaudeTranscriptParser.parse(text, project: project)
                 cache[key] = (mtime, entries)
                 all.append(contentsOf: entries)
             }
