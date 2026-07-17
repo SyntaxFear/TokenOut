@@ -45,8 +45,8 @@ struct CombinedCard: View {
             }
 
             HStack(spacing: 6) {
-                tile("Today", "~" + Format.usd(todayCost), accent: true)
-                tile("\(app.dailyRange)d spend", "~" + Format.usd(rangeCost))
+                tile("Today", Format.usd(todayCost), accent: true)
+                tile("\(app.dailyRange)d spend", Format.usd(rangeCost))
                 tile("\(app.dailyRange)d tokens", Format.tokens(rangeTokens))
             }
 
@@ -119,7 +119,7 @@ struct CombinedCard: View {
                         $0.provider == name && (hoveredDay == nil || $0.day == hoveredDay)
                     }
                     Label {
-                        Text("\(name) ~\(Format.usd(slice.reduce(0) { $0 + $1.cost }))")
+                        Text("\(name) \(Format.usd(slice.reduce(0) { $0 + $1.cost }))")
                             .font(.system(size: 9).monospacedDigit())
                     } icon: {
                         Circle().fill(color).frame(width: 6, height: 6)

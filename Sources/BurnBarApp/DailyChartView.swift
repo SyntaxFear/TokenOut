@@ -86,12 +86,11 @@ struct DailyChartView: View {
     }
 
     private var statTiles: some View {
-        let est = totals.estimated ? "~" : ""
         let tiles: [(String, String)] = [
-            ("Today", "\(est)\(Format.usd(todayStat?.costUSD ?? 0))"),
-            ("\(app.dailyRange)d cost", "\(est)\(Format.usd(totals.cost))"),
+            ("Today", Format.usd(todayStat?.costUSD ?? 0)),
+            ("\(app.dailyRange)d cost", Format.usd(totals.cost)),
             ("\(app.dailyRange)d tokens", Format.tokens(totals.tokens)),
-            ("Peak day", "\(est)\(Format.usd(priciestDay?.costUSD ?? 0))"),
+            ("Peak day", Format.usd(priciestDay?.costUSD ?? 0)),
         ]
         return LazyVGrid(columns: [GridItem(.flexible(), spacing: 6), GridItem(.flexible())],
                          spacing: 6) {
@@ -102,7 +101,7 @@ struct DailyChartView: View {
                         .tracking(0.6)
                         .foregroundStyle(.tertiary)
                     Text(tile.1)
-                        .font(.system(size: 17, weight: .semibold, design: .rounded).monospacedDigit())
+                        .font(.system(size: 14, weight: .semibold, design: .rounded).monospacedDigit())
                         .contentTransition(.numericText())
                         .foregroundStyle(tile.0 == "Today" ? AnyShapeStyle(.orange.gradient)
                                                            : AnyShapeStyle(.primary))
@@ -120,10 +119,10 @@ struct DailyChartView: View {
     private var infoLine: some View {
         HStack {
             if let day = hovered {
-                Text("\(day.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))) · \(Format.tokens(day.tokens)) tok · \(day.costIsEstimated ? "~" : "")\(Format.usd(day.costUSD))\(day.topModelText.map { " · \($0)" } ?? "")")
+                Text("\(day.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))) · \(Format.tokens(day.tokens)) tok · \(Format.usd(day.costUSD))\(day.topModelText.map { " · \($0)" } ?? "")")
                     .foregroundStyle(.primary)
             } else {
-                Text("\(Format.tokens(totals.tokens)) tokens · \(totals.estimated ? "~" : "")\(Format.usd(totals.cost))")
+                Text("\(Format.tokens(totals.tokens)) tokens · \(Format.usd(totals.cost))")
                 Spacer()
                 if let peak = peakDay {
                     Text("peak \(peak.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))")
@@ -170,7 +169,7 @@ struct DailyChartView: View {
                 AxisValueLabel(format: app.dailyRange <= 7
                                ? .dateTime.weekday(.narrow)
                                : .dateTime.day().month(.defaultDigits),
-                               centered: false)
+                               centered: true, anchor: .top)
                     .font(.system(size: 7.5))
             }
         }
@@ -187,7 +186,7 @@ struct DailyChartView: View {
         .frame(height: 74)
         .overlay(alignment: .topTrailing) {
             if hovered == nil, let peak = peakDay, value(peak) > 0 {
-                Text("\(totals.estimated && app.chartMetric == .cost ? "~" : "")\(compactValue(value(peak)))")
+                Text(compactValue(value(peak)))
                     .font(.system(size: 8.5, weight: .medium).monospacedDigit())
                     .foregroundStyle(.tertiary)
                     .padding(.trailing, 2)
