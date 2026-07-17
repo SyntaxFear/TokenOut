@@ -135,10 +135,24 @@ struct DailyChartView: View {
     private var infoLine: some View {
         HStack {
             if let day = hovered {
-                Text("\(day.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))) · \(Format.tokens(day.tokens)) tok\(hasCostData ? " · \(Format.usd(day.costUSD))" : "")\(day.topModelText.map { " · \($0)" } ?? "")")
-                    .foregroundStyle(.primary)
+                Text("\(day.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))) · \(Format.tokens(day.tokens)) tok")
+                if hasCostData {
+                    Text("·")
+                    MetricValueText(value: Format.usd(day.costUSD), size: 9.5,
+                                    weight: .regular, design: .default)
+                }
+                if let topModel = day.topModelText {
+                    Text("· \(topModel)")
+                }
             } else {
-                Text("\(Format.tokens(totals.tokens)) tokens\(hasCostData ? " · \(Format.usd(totals.cost))" : " · estimated locally")")
+                Text("\(Format.tokens(totals.tokens)) tokens")
+                Text("·")
+                if hasCostData {
+                    MetricValueText(value: Format.usd(totals.cost), size: 9.5,
+                                    weight: .regular, design: .default)
+                } else {
+                    Text("estimated locally")
+                }
                 Spacer()
                 if let peak = peakDay {
                     Text("peak \(peak.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))")

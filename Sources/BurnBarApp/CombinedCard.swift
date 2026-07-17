@@ -117,8 +117,15 @@ struct CombinedCard: View {
                         $0.provider == name && (hoveredDay == nil || $0.day == hoveredDay)
                     }
                     Label {
-                        Text("\(name) \(Format.usd(slice.reduce(0) { $0 + $1.cost }))")
-                            .font(.system(size: 9).monospacedDigit())
+                        HStack(spacing: 2) {
+                            Text(name).font(.system(size: 9))
+                            MetricValueText(
+                                value: Format.usd(slice.reduce(0) { $0 + $1.cost }),
+                                size: 9,
+                                weight: .regular,
+                                design: .default
+                            )
+                        }
                     } icon: {
                         Circle().fill(color).frame(width: 6, height: 6)
                     }

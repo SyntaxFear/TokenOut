@@ -44,10 +44,8 @@ struct UsageSummaryTiles: View {
             MetricValueText(value: value)
                 .foregroundStyle(accent ? AnyShapeStyle(.orange.gradient)
                                         : AnyShapeStyle(.primary))
-            Text(secondary)
-                .font(.system(size: 9))
+            MetricValueText(value: secondary, size: 9, weight: .regular, design: .default)
                 .foregroundStyle(.tertiary)
-                .lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 9)

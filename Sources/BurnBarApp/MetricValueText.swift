@@ -1,15 +1,22 @@
 import SwiftUI
 
-/// Dashboard-number typography: keep the meaningful whole value prominent while
-/// reducing decimal precision visually ("5125.33" → large 5125 + smaller .33).
+/// Currency typography: keep the meaningful whole value prominent while reducing
+/// cents visually ("$5125.33" → large $5125 + smaller .33). Non-currency decimals,
+/// such as token abbreviations ("5.1M"), stay at one consistent size.
 struct MetricValueText: View {
     var value: String
     var size: CGFloat = 14
     var weight: Font.Weight = .semibold
     var design: Font.Design = .rounded
 
+    private let currencyMarkers = "$€£¥₹₾₽₩₺₴₦₫฿₱₪₡₲₵₸"
+
+    private var isCurrency: Bool {
+        value.contains { currencyMarkers.contains($0) }
+    }
+
     private var parts: (whole: String, fraction: String?, suffix: String) {
-        guard let decimal = value.firstIndex(of: ".") else {
+        guard isCurrency, let decimal = value.firstIndex(of: ".") else {
             return (value, nil, "")
         }
         var end = value.index(after: decimal)

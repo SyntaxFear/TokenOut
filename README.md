@@ -14,7 +14,7 @@
 
 The menu bar can show the tightest enabled limit, one provider, or compact readings for every provider. The popover includes configurable combined totals, provider details, breakdowns, daily charts, refill countdowns, refresh cadence, and notification thresholds.
 
-Decimal precision is visually quieter throughout metric tiles: the fractional part of values such as `$5125.33` is rendered smaller than the primary number.
+Currency precision is visually quieter throughout the app: cents in values such as `$5125.33` are rendered smaller, while non-currency decimals such as `5.1M` tokens remain full-sized.
 
 ## Privacy
 

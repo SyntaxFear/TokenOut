@@ -35,9 +35,8 @@ extension View {
     /// Standard treatment for every clickable control in BurnBar.
     func clickable() -> some View { hoverHighlight().pointer() }
 
-    /// SwiftUI exposes scrollbar visibility but not native scroller style or size.
-    /// This keeps the ScrollView fully SwiftUI-owned while narrowly configuring its
-    /// enclosing NSScrollView as a transparent, auto-hiding mini overlay scroller.
+    /// A completely trackless overlay scroller. The hit area stays native-sized for
+    /// usability, while the only visible element is a restrained 3 px thumb.
     func thinOverlayScroller() -> some View {
         background(OverlayScrollerConfigurator())
     }
@@ -82,8 +81,33 @@ private struct OverlayScrollerConfigurator: NSViewRepresentable {
             scrollView.hasHorizontalScroller = false
             scrollView.drawsBackground = false
             scrollView.backgroundColor = .clear
+            if !(scrollView.verticalScroller is BurnBarOverlayScroller) {
+                scrollView.verticalScroller = BurnBarOverlayScroller()
+            }
             scrollView.verticalScroller?.controlSize = .mini
-            scrollView.verticalScroller?.knobStyle = .default
         }
+    }
+}
+
+private final class BurnBarOverlayScroller: NSScroller {
+    override class var isCompatibleWithOverlayScrollers: Bool { true }
+
+    override func drawKnobSlot(in slotRect: NSRect, highlight flag: Bool) {
+        // Intentionally empty: BurnBar never draws a scrollbar rail or background.
+    }
+
+    override func drawKnob() {
+        let nativeKnob = rect(for: .knob)
+        guard !nativeKnob.isEmpty else { return }
+
+        let thumbWidth: CGFloat = 3
+        let thumbRect = NSRect(
+            x: nativeKnob.midX - thumbWidth / 2,
+            y: nativeKnob.minY + 1,
+            width: thumbWidth,
+            height: max(8, nativeKnob.height - 2)
+        )
+        NSColor.secondaryLabelColor.withAlphaComponent(0.58).setFill()
+        NSBezierPath(roundedRect: thumbRect, xRadius: 1.5, yRadius: 1.5).fill()
     }
 }
