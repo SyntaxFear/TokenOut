@@ -43,13 +43,52 @@ public struct CodexProvider: UsageProvider {
         if let credits = CodexUsageAPI.decodeCredits(from: data) {
             detail.append(DetailLine(title: "Credits", value: credits))
         }
+
+        // Local session rollouts → tokens, cost estimate, by-model breakdown, daily chart.
+        let sessions = await CodexSessionScanner.shared.recentSessions()
+        let now = Date.now
+        let startOfToday = Calendar.current.startOfDay(for: now)
+        let weekStart = now.addingTimeInterval(-7 * 86400)
+        var todayTokens = 0, weekTokens = 0
+        var todayCost = 0.0, weekCost = 0.0
+        var byModel: [String: (tokens: Int, cost: Double)] = [:]
+        for session in sessions {
+            let cost = CodexSessionScanner.cost(of: session)
+            if session.date >= weekStart { weekTokens += session.totalTokens; weekCost += cost }
+            if session.date >= startOfToday {
+                todayTokens += session.totalTokens
+                todayCost += cost
+                var entry = byModel[session.model] ?? (0, 0)
+                entry.tokens += session.totalTokens
+                entry.cost += cost
+                byModel[session.model] = entry
+            }
+        }
+        var breakdowns: [Breakdown] = []
+        if !byModel.isEmpty {
+            let totalCost = max(todayCost, 0.001)
+            breakdowns.append(Breakdown(title: "Today by model", rows: byModel
+                .sorted { $0.value.cost > $1.value.cost }.prefix(4).map {
+                    Breakdown.Row(name: $0.key,
+                                  valueText: "\(Format.tokens($0.value.tokens)) · ~\(Format.usd($0.value.cost))",
+                                  fraction: $0.value.cost / totalCost)
+                }))
+        }
+        let daily = DayStat.aggregate(
+            points: sessions.map { ($0.date, $0.totalTokens, CodexSessionScanner.cost(of: $0)) },
+            days: 92, estimated: true)
+
         return UsageSnapshot(
             providerID: .codex,
-            fetchedAt: .now,
+            fetchedAt: now,
             accountLabel: plan?.capitalized,
             windows: windows,
-            tokens: nil,
-            detail: detail
+            tokens: sessions.isEmpty ? nil : TokenTotals(
+                todayTokens: todayTokens, weekTokens: weekTokens,
+                todayCostUSD: todayCost, weekCostUSD: weekCost, costIsEstimated: true),
+            detail: detail,
+            breakdowns: breakdowns,
+            daily: daily
         )
     }
 }

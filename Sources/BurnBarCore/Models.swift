@@ -81,10 +81,12 @@ public struct UsageSnapshot: Codable, Sendable, Equatable {
     public var tokens: TokenTotals?
     public var detail: [DetailLine]
     public var breakdowns: [Breakdown]
+    /// Day-by-day usage, oldest first, for the daily chart (up to ~90 days).
+    public var daily: [DayStat]
 
     public init(providerID: ProviderID, fetchedAt: Date, accountLabel: String?,
                 windows: [LimitWindow], tokens: TokenTotals?, detail: [DetailLine] = [],
-                breakdowns: [Breakdown] = []) {
+                breakdowns: [Breakdown] = [], daily: [DayStat] = []) {
         self.providerID = providerID
         self.fetchedAt = fetchedAt
         self.accountLabel = accountLabel
@@ -92,10 +94,11 @@ public struct UsageSnapshot: Codable, Sendable, Equatable {
         self.tokens = tokens
         self.detail = detail
         self.breakdowns = breakdowns
+        self.daily = daily
     }
 
     enum CodingKeys: String, CodingKey {
-        case providerID, fetchedAt, accountLabel, windows, tokens, detail, breakdowns
+        case providerID, fetchedAt, accountLabel, windows, tokens, detail, breakdowns, daily
     }
 
     public init(from decoder: Decoder) throws {
@@ -107,6 +110,38 @@ public struct UsageSnapshot: Codable, Sendable, Equatable {
         tokens = try c.decodeIfPresent(TokenTotals.self, forKey: .tokens)
         detail = try c.decodeIfPresent([DetailLine].self, forKey: .detail) ?? []
         breakdowns = try c.decodeIfPresent([Breakdown].self, forKey: .breakdowns) ?? []
+        daily = try c.decodeIfPresent([DayStat].self, forKey: .daily) ?? []
+    }
+}
+
+/// One calendar day's usage.
+public struct DayStat: Codable, Sendable, Equatable {
+    public var day: Date
+    public var tokens: Int
+    public var costUSD: Double
+    public var costIsEstimated: Bool
+
+    public init(day: Date, tokens: Int, costUSD: Double, costIsEstimated: Bool = false) {
+        self.day = day
+        self.tokens = tokens
+        self.costUSD = costUSD
+        self.costIsEstimated = costIsEstimated
+    }
+
+    /// Group (date, tokens, cost) points into per-day stats, oldest first, within `days`.
+    public static func aggregate(points: [(Date, Int, Double)], days: Int,
+                                 calendar: Calendar = .current, now: Date = .now,
+                                 estimated: Bool = false) -> [DayStat] {
+        let cutoff = calendar.startOfDay(for: now.addingTimeInterval(-Double(days - 1) * 86400))
+        var byDay: [Date: DayStat] = [:]
+        for (ts, tokens, cost) in points where ts >= cutoff {
+            let day = calendar.startOfDay(for: ts)
+            var stat = byDay[day] ?? DayStat(day: day, tokens: 0, costUSD: 0, costIsEstimated: estimated)
+            stat.tokens += tokens
+            stat.costUSD += cost
+            byDay[day] = stat
+        }
+        return byDay.values.sorted { $0.day < $1.day }
     }
 }
 

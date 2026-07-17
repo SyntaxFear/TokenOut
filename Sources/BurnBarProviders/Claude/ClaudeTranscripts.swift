@@ -49,6 +49,9 @@ public enum ClaudeTranscriptParser {
         var byID: [String: TranscriptEntry] = [:]
         var order: [String] = []
         for line in text.split(separator: "\n", omittingEmptySubsequences: true) {
+            // Cheap pre-filter: most lines (user turns, tool results) can't match and
+            // full JSON parsing 1GB+ of transcripts per scan is what makes cold scans slow.
+            guard line.contains("\"assistant\""), line.contains("\"usage\"") else { continue }
             guard let data = line.data(using: .utf8),
                   let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                   root["type"] as? String == "assistant",

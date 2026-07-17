@@ -88,6 +88,10 @@ final class AppState {
     var showRemaining: Bool {
         didSet { UserDefaults.standard.set(showRemaining, forKey: "showRemaining") }
     }
+    /// Daily-chart range in days: 7, 30, 60, or 90.
+    var dailyRange: Int {
+        didSet { UserDefaults.standard.set(dailyRange, forKey: "dailyRange") }
+    }
     var cadence: RefreshCadence {
         didSet {
             UserDefaults.standard.set(cadence.rawValue, forKey: "cadence")
@@ -114,6 +118,8 @@ final class AppState {
         menuBarStyle = defaults.string(forKey: "menuBarStyle")
             .flatMap(MenuBarStyle.init(rawValue:)) ?? .iconPercent
         showRemaining = defaults.bool(forKey: "showRemaining")
+        let storedRange = defaults.integer(forKey: "dailyRange")
+        dailyRange = [7, 30, 60, 90].contains(storedRange) ? storedRange : 30
         cadence = defaults.string(forKey: "cadence")
             .flatMap(RefreshCadence.init(rawValue:)) ?? .normal
         notificationsEnabled = defaults.object(forKey: "notificationsEnabled") as? Bool ?? true

@@ -90,6 +90,9 @@ struct ProviderCard: View {
         ForEach(snapshot.breakdowns, id: \.title) { breakdown in
             BreakdownView(breakdown: breakdown)
         }
+        if !snapshot.daily.isEmpty {
+            DailyChartView(daily: snapshot.daily)
+        }
     }
 
     @ViewBuilder

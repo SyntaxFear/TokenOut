@@ -36,7 +36,7 @@ public struct ClaudeProvider: UsageProvider {
             windows = try await ClaudeUsageAPI.fetch(token: refreshed.accessToken)
         }
 
-        let entries = await ClaudeTranscriptScanner.shared.recentEntries()
+        let entries = await ClaudeTranscriptScanner.shared.recentEntries(withinDays: 92)
         let now = Date.now
         let cal = Calendar.current
         let todayRange = cal.startOfDay(for: now)...now
@@ -79,7 +79,12 @@ public struct ClaudeProvider: UsageProvider {
                 weekCostUSD: week.costUSD,
                 costIsEstimated: today.costIsEstimated || week.costIsEstimated
             ),
-            breakdowns: breakdowns
+            breakdowns: breakdowns,
+            daily: DayStat.aggregate(
+                points: entries.map {
+                    ($0.timestamp, $0.usage.total, Pricing.cost(model: $0.model, usage: $0.usage).usd)
+                },
+                days: 92)
         )
     }
 }
