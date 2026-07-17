@@ -22,11 +22,24 @@ public actor CodexSessionScanner {
         FileManager.default.homeDirectoryForCurrentUser.appending(path: $0)
     }
 
-    /// Estimated API-equivalent pricing for the GPT-5 family, USD per MTok.
+    /// API-equivalent pricing, USD per MTok, verified against published OpenAI rates
+    /// (2026-07): GPT-5.6 Sol 5/30, Terra 2.5/15, Luna 1/6, GPT-5.5 5/30; cached
+    /// input reads bill at 10% of the input rate. Older gpt-5 fallback 1.25/10.
+    static let rates: [(prefix: String, input: Double, output: Double)] = [
+        ("gpt-5.6-sol", 5.0, 30.0),
+        ("gpt-5.6-terra", 2.5, 15.0),
+        ("gpt-5.6-luna", 1.0, 6.0),
+        ("gpt-5.6", 5.0, 30.0),
+        ("gpt-5.5", 5.0, 30.0),
+        ("gpt-5", 1.25, 10.0),
+    ]
+
     static func cost(of stat: CodexSessionStat) -> Double {
-        (Double(stat.input - stat.cachedInput) * 1.25
-         + Double(stat.cachedInput) * 0.125
-         + Double(stat.output) * 10.0) / 1_000_000
+        let rate = rates.first { stat.model.hasPrefix($0.prefix) }
+            ?? (prefix: "", input: 5.0, output: 30.0)  // unknown future models: current top tier
+        return (Double(stat.input - stat.cachedInput) * rate.input
+                + Double(stat.cachedInput) * rate.input * 0.1
+                + Double(stat.output) * rate.output) / 1_000_000
     }
 
     public func recentSessions(withinDays days: Int = 92) -> [CodexSessionStat] {

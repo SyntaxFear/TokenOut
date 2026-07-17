@@ -18,9 +18,16 @@ import BurnBarCore
     #expect(stat?.totalTokens == 23547)
     #expect(CodexSessionScanner.parseRollout(text: "{}", date: date) == nil)
 
+    // gpt-5.6-sol: $5/M input (cached at 10%), $30/M output — published 2026-07 rates.
     let cost = CodexSessionScanner.cost(of: stat!)
-    let expected = (Double(23258 - 4000) * 1.25 + 4000 * 0.125 + 289 * 10.0) / 1_000_000
+    let expected = (Double(23258 - 4000) * 5.0 + 4000 * 0.5 + 289 * 30.0) / 1_000_000
     #expect(abs(cost - expected) < 0.000001)
+
+    var old = stat!
+    old.model = "gpt-5"
+    let oldCost = CodexSessionScanner.cost(of: old)
+    let oldExpected = (Double(23258 - 4000) * 1.25 + 4000 * 0.125 + 289 * 10.0) / 1_000_000
+    #expect(abs(oldCost - oldExpected) < 0.000001)
 }
 
 @Test func codexRolloutFilenameDate() {
