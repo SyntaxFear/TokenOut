@@ -2,6 +2,7 @@
 
 **Date:** 2026-07-17
 **Status:** Approved scope (Claude Code + Codex + Antigravity, native SwiftUI, product from day one)
+**Phase 1 (current):** complete local-use app — all three providers, full UI, ad-hoc signed, installed on the dev Mac. **Licensing is deferred to the public phase** (user decision 2026-07-17), along with Sparkle, notarization/DMG, and the landing page, which unlock once the user provides their Apple Developer account.
 **Name:** BurnBar — verified 2026-07-17: burnbar.app belongs to an unrelated drink-tracker app; burnbar.com registered-but-dormant since 2015; **burnbar.dev appears available**. Distribution is direct (notarized DMG), not App Store, so the collision is tolerable. Formal trademark diligence is a pre-launch task; renaming is cheap until launch.
 
 ## 1. Product
@@ -114,14 +115,18 @@ Next.js on Vercel sharing the license API. Built after the app works. Out of v1 
 
 ## 10. Build order
 
+**Phase 1 — local use (current phase):**
 1. **App core + Claude provider** — end-to-end: real data in the menu bar
 2. **Codex provider**
 3. **Antigravity spike + provider**
-4. **Licensing** (app-side verifier + Vercel/Supabase API + keygen CLI)
-5. **Sparkle + signing/notarization + DMG**
-6. **Landing page**
+4. **Local ship** — onboarding polish, app icon, ad-hoc signing, install on the dev Mac
 
-Each step leaves a working app. Steps 1–3 make it a great personal tool; 4–6 make it a product.
+**Phase 2 — public (blocked on Apple Developer account):**
+5. **Licensing** (Ed25519 verifier + trial + keygen CLI + Vercel/Supabase API)
+6. **Sparkle + Developer ID signing/notarization + DMG**
+7. **Landing page**
+
+Each step leaves a working app.
 
 ## Out of scope (v2 backlog)
 
