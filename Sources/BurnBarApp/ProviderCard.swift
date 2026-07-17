@@ -113,27 +113,78 @@ struct ProviderCard: View {
         }
     }
 
+    @State private var sparkHover: (Date, Double)?
+
     @ViewBuilder
     private var sparkline: some View {
-        let series = app.sparkline(for: providerID)
-        if series.count >= 5 {
-            Chart(Array(series.enumerated()), id: \.offset) { _, point in
-                AreaMark(x: .value("t", point.0), y: .value("used", point.1))
-                    .foregroundStyle(.orange.opacity(0.18))
-                LineMark(x: .value("t", point.0), y: .value("used", point.1))
-                    .foregroundStyle(.orange)
-                    .lineStyle(StrokeStyle(lineWidth: 1.5))
-            }
-            .chartYScale(domain: 0...1)
-            .chartXAxis(.hidden)
-            .chartYAxis(.hidden)
-            .frame(height: 30)
-            .clipShape(RoundedRectangle(cornerRadius: 4))
-            .overlay(alignment: .topLeading) {
-                Text("24 h")
-                    .font(.system(size: 8, weight: .medium))
-                    .foregroundStyle(.tertiary)
-                    .padding(2)
+        @Bindable var app = app
+        let raw = app.sparkline(for: providerID)
+        if raw.count >= 5 {
+            let series = raw.map { ($0.0, app.sparkShowsRemaining ? 1 - $0.1 : $0.1) }
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    if let hover = sparkHover {
+                        Text("\(hover.0.formatted(date: .omitted, time: .shortened)) · \(Format.pct(hover.1)) \(app.sparkShowsRemaining ? "left" : "used")")
+                            .font(.system(size: 9, weight: .medium).monospacedDigit())
+                            .foregroundStyle(.primary)
+                    } else {
+                        Text("SESSION WINDOW · LAST 24H")
+                            .font(.system(size: 8, weight: .semibold)).tracking(0.5)
+                            .foregroundStyle(.tertiary)
+                            .help("How full your 5-hour session window has been through the day. Drops mean the window refilled.")
+                    }
+                    Spacer()
+                    Picker("", selection: $app.sparkShowsRemaining) {
+                        Text("Left").tag(true)
+                        Text("Used").tag(false)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .controlSize(.mini)
+                    .fixedSize()
+                    .help("Plot what's left (drains to 0%) or what's used (fills to 100%)")
+                }
+                Chart(Array(series.enumerated()), id: \.offset) { _, point in
+                    AreaMark(x: .value("t", point.0), y: .value("v", point.1))
+                        .foregroundStyle(.orange.opacity(0.18))
+                    LineMark(x: .value("t", point.0), y: .value("v", point.1))
+                        .foregroundStyle(.orange)
+                        .lineStyle(StrokeStyle(lineWidth: 1.5))
+                    if let hover = sparkHover {
+                        RuleMark(x: .value("t", hover.0))
+                            .foregroundStyle(.yellow.opacity(0.7))
+                            .lineStyle(StrokeStyle(lineWidth: 1))
+                    }
+                }
+                .chartYScale(domain: 0...1)
+                .chartXAxis(.hidden)
+                .chartYAxis {
+                    AxisMarks(values: [0.0, 1.0]) { value in
+                        AxisValueLabel {
+                            if let v = value.as(Double.self) {
+                                Text(v == 0 ? "0" : "100%").font(.system(size: 7))
+                            }
+                        }
+                    }
+                }
+                .frame(height: 30)
+                .chartOverlay { proxy in
+                    GeometryReader { geo in
+                        Rectangle().fill(.clear).contentShape(Rectangle())
+                            .onContinuousHover { phase in
+                                switch phase {
+                                case .active(let point):
+                                    let origin = geo[proxy.plotFrame!].origin
+                                    if let date: Date = proxy.value(atX: point.x - origin.x) {
+                                        sparkHover = series.min {
+                                            abs($0.0.timeIntervalSince(date)) < abs($1.0.timeIntervalSince(date))
+                                        }
+                                    }
+                                case .ended: sparkHover = nil
+                                }
+                            }
+                    }
+                }
             }
         }
     }
