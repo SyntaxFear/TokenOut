@@ -34,7 +34,10 @@ public enum CodexUsageAPI {
 
             let (label, kind): (String, LimitWindow.Kind) = switch durationSeconds {
             case 1...(6 * 3600): ("5-hour session", .session)
-            case ...(10 * 86400): ("Weekly", .weekly)
+            case (6 * 3600 + 1)...(10 * 86400): ("Weekly", .weekly)
+            case 0:  // duration missing: classify by which slot it came from
+                keys.contains("primary_window") || keys.contains("primary")
+                    ? ("5-hour session", .session) : ("Weekly", .weekly)
             default: ("Monthly", .weekly)
             }
             windows.append(LimitWindow(label: label, kind: kind,

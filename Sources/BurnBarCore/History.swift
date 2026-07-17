@@ -57,8 +57,8 @@ public final class HistoryStore: @unchecked Sendable {
             let sample = HistorySample(
                 timestamp: snapshot.fetchedAt,
                 providerID: snapshot.providerID,
-                fractions: Dictionary(uniqueKeysWithValues:
-                    snapshot.windows.map { ($0.label, $0.usedFraction) }),
+                fractions: Dictionary(snapshot.windows.map { ($0.label, $0.usedFraction) },
+                                      uniquingKeysWith: { first, _ in first }),
                 todayTokens: snapshot.tokens?.todayTokens,
                 todayCostUSD: snapshot.tokens?.todayCostUSD)
             samples.append(sample)

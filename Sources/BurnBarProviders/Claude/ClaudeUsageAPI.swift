@@ -30,7 +30,7 @@ public enum ClaudeUsageAPI {
         for known in knownWindows {
             guard let dict = root[known.key] as? [String: Any] else { continue }
             guard let raw = (dict["utilization"] as? NSNumber)?.doubleValue else { continue }
-            let fraction = raw > 1.5 ? raw / 100.0 : raw
+            let fraction = raw / 100.0  // flat shape documents utilization as 0-100 percent
             let resetsAt = (dict["resets_at"] as? String).flatMap {
                 ClaudeTranscriptParser.date(from: $0)
             }

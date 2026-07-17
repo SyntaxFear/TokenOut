@@ -21,7 +21,11 @@ struct DailyChartView: View {
          visible.contains { $0.costIsEstimated })
     }
 
+    /// Token peak drives the chart highlight (the chart plots tokens)…
     private var busiestDay: DayStat? { visible.max { $0.tokens < $1.tokens } }
+    /// …but the dollar tile must use the most expensive day, which can differ
+    /// (a cache-heavy day can have more tokens yet cost less).
+    private var priciestDay: DayStat? { visible.max { $0.costUSD < $1.costUSD } }
 
     var body: some View {
         @Bindable var app = app
@@ -69,7 +73,7 @@ struct DailyChartView: View {
             ("Today", "\(est)\(Format.usd(todayStat?.costUSD ?? 0))"),
             ("\(app.dailyRange)d cost", "\(est)\(Format.usd(totals.cost))"),
             ("\(app.dailyRange)d tokens", Format.tokens(totals.tokens)),
-            ("Peak day", "\(est)\(Format.usd(busiestDay?.costUSD ?? 0))"),
+            ("Peak day", "\(est)\(Format.usd(priciestDay?.costUSD ?? 0))"),
         ]
         return LazyVGrid(columns: [GridItem(.flexible(), spacing: 6), GridItem(.flexible())],
                          spacing: 6) {
@@ -164,8 +168,8 @@ struct DailyChartView: View {
         }
         .frame(height: 74)
         .overlay(alignment: .topTrailing) {
-            if hovered == nil, let busiest = busiestDay, busiest.costUSD > 0 {
-                Text("\(totals.estimated ? "~" : "")\(Format.usd(busiest.costUSD))")
+            if hovered == nil, let priciest = priciestDay, priciest.costUSD > 0 {
+                Text("\(totals.estimated ? "~" : "")\(Format.usd(priciest.costUSD))")
                     .font(.system(size: 8.5, weight: .medium).monospacedDigit())
                     .foregroundStyle(.tertiary)
                     .padding(.trailing, 2)

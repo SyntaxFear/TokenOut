@@ -41,7 +41,7 @@ public enum Pricing {
         ("claude-opus-4-8", Rate(input: 5, output: 25)),
         ("claude-opus-4-7", Rate(input: 5, output: 25)),
         ("claude-opus-4-6", Rate(input: 5, output: 25)),
-        ("claude-opus-4-5", Rate(input: 15, output: 75)),
+        ("claude-opus-4-5", Rate(input: 5, output: 25)),
         ("claude-opus-4-1", Rate(input: 15, output: 75)),
         ("claude-opus-4", Rate(input: 15, output: 75)),
         ("claude-3-opus", Rate(input: 15, output: 75)),
@@ -59,7 +59,12 @@ public enum Pricing {
     public static func cost(model: String, usage: TokenUsage) -> (usd: Double, isEstimated: Bool) {
         if model.hasPrefix("<") { return (0, false) }  // "<synthetic>" placeholder entries
         let matched = rates.first { model.hasPrefix($0.prefix) }?.rate
-        let rate = matched ?? fallback
+        var rate = matched ?? fallback
+        // Sonnet 5 introductory pricing ($2/$10) runs through 2026-08-31.
+        if model.hasPrefix("claude-sonnet-5"),
+           Date.now.timeIntervalSince1970 < 1_787_875_200 {
+            rate = Rate(input: 2, output: 10)
+        }
         let usd = (Double(usage.input) * rate.input
                  + Double(usage.output) * rate.output
                  + Double(usage.cacheWrite) * rate.input * 1.25

@@ -144,7 +144,9 @@ public struct DayStat: Codable, Sendable, Equatable {
     public static func aggregate(points: [(Date, Int, Double, String)], days: Int,
                                  calendar: Calendar = .current, now: Date = .now,
                                  estimated: Bool = false) -> [DayStat] {
-        let cutoff = calendar.startOfDay(for: now.addingTimeInterval(-Double(days - 1) * 86400))
+        let cutoff = calendar.date(byAdding: .day, value: -(days - 1),
+                                   to: calendar.startOfDay(for: now))
+            ?? calendar.startOfDay(for: now.addingTimeInterval(-Double(days - 1) * 86400))
         var byDay: [Date: DayStat] = [:]
         for (ts, tokens, cost, model) in points where ts >= cutoff {
             let day = calendar.startOfDay(for: ts)

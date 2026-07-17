@@ -52,8 +52,12 @@ public actor CodexSessionScanner {
                 options: [.skipsHiddenFiles]) else { return [] }
             return enumerator.compactMap { $0 as? URL }
         }
+        var seenNames: Set<String> = []
         for url in urls
         where url.lastPathComponent.hasPrefix("rollout-") && url.pathExtension == "jsonl" {
+            // A rollout can transiently exist in both sessions/ and archived_sessions/;
+            // filenames are UUID-unique, so first root (live) wins.
+            guard seenNames.insert(url.lastPathComponent).inserted else { continue }
             guard let mtime = try? url.resourceValues(forKeys: [.contentModificationDateKey])
                 .contentModificationDate, mtime > cutoff else { continue }
             let key = url.path
