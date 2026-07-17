@@ -53,6 +53,8 @@ struct DailyChartView: View {
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
+                .clickable()
+                .help(expanded ? "Collapse daily usage" : "Expand daily usage")
                 .onTapGesture { withAnimation(.easeOut(duration: 0.15)) { expanded.toggle() } }
         }
     }

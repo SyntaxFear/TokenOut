@@ -80,11 +80,14 @@ struct PopoverView: View {
                 Label("Refresh", systemImage: "arrow.clockwise").font(.system(size: 11))
             }
             .buttonStyle(.borderless)
+            .clickable()
+            .help("Refresh all providers now")
             Spacer()
             SettingsLink {
                 Image(systemName: "gearshape").font(.system(size: 11))
             }
             .buttonStyle(.borderless)
+            .clickable()
             .help("Settings")
             Button {
                 NSApp.terminate(nil)
@@ -92,6 +95,7 @@ struct PopoverView: View {
                 Image(systemName: "power").font(.system(size: 11))
             }
             .buttonStyle(.borderless)
+            .clickable()
             .help("Quit BurnBar")
         }
         .foregroundStyle(.secondary)
