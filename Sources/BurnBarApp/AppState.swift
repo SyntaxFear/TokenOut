@@ -114,11 +114,6 @@ final class AppState {
     var chartMetric: ChartMetric {
         didSet { UserDefaults.standard.set(chartMetric.rawValue, forKey: "chartMetric") }
     }
-    /// 24h sparkline direction: true (default) plots what's LEFT draining to 0%,
-    /// false plots what's USED filling to 100%.
-    var sparkShowsRemaining: Bool {
-        didSet { UserDefaults.standard.set(sparkShowsRemaining, forKey: "sparkShowsRemaining") }
-    }
     var cadence: RefreshCadence {
         didSet {
             UserDefaults.standard.set(cadence.rawValue, forKey: "cadence")
@@ -144,13 +139,13 @@ final class AppState {
             .flatMap(MenuBarMetric.init(rawValue:)) ?? .tightest
         menuBarStyle = defaults.string(forKey: "menuBarStyle")
             .flatMap(MenuBarStyle.init(rawValue:)) ?? .iconPercent
-        showRemaining = defaults.bool(forKey: "showRemaining")
+        // Default to "what's left" — the planning-first mental model.
+        showRemaining = defaults.object(forKey: "showRemaining") as? Bool ?? true
         let storedRange = defaults.integer(forKey: "dailyRange")
         dailyRange = [7, 30, 60, 90].contains(storedRange) ? storedRange : 30
         popoverFocus = defaults.string(forKey: "popoverFocus").flatMap(ProviderID.init(rawValue:))
         chartMetric = defaults.string(forKey: "chartMetric")
             .flatMap(ChartMetric.init(rawValue:)) ?? .cost
-        sparkShowsRemaining = defaults.object(forKey: "sparkShowsRemaining") as? Bool ?? true
         cadence = defaults.string(forKey: "cadence")
             .flatMap(RefreshCadence.init(rawValue:)) ?? .normal
         notificationsEnabled = defaults.object(forKey: "notificationsEnabled") as? Bool ?? true

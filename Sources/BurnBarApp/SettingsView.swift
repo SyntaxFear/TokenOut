@@ -42,7 +42,12 @@ struct SettingsView: View {
                         Text(style.title).tag(style)
                     }
                 }
-                Toggle("Show remaining instead of used", isOn: $app.showRemaining)
+                Picker("Limits show", selection: $app.showRemaining) {
+                    Text("What's left (drains to 0%)").tag(true)
+                    Text("What's used (fills to 100%)").tag(false)
+                }
+                Text("Applies to every limit — 5-hour, weekly, monthly — in cards and the menu bar.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
 
             Section("Refresh") {
