@@ -4,6 +4,20 @@ import Observation
 import BurnBarCore
 import BurnBarProviders
 
+enum ChartMetric: String, CaseIterable {
+    case cost, tokens
+    var title: String { self == .cost ? "$" : "Tok" }
+}
+
+/// One provider's slice of one day, for the combined stacked chart.
+struct CombinedPoint: Identifiable {
+    var id: String { "\(provider)-\(day.timeIntervalSince1970)" }
+    var day: Date
+    var provider: String
+    var tokens: Int
+    var cost: Double
+}
+
 enum MenuBarStyle: String, CaseIterable {
     case iconPercent, iconOnly, percentOnly, allProviders
 
@@ -96,6 +110,10 @@ final class AppState {
     var popoverFocus: ProviderID? {
         didSet { UserDefaults.standard.set(popoverFocus?.rawValue ?? "all", forKey: "popoverFocus") }
     }
+    /// What daily charts plot: dollars (default — matches the tiles) or raw tokens.
+    var chartMetric: ChartMetric {
+        didSet { UserDefaults.standard.set(chartMetric.rawValue, forKey: "chartMetric") }
+    }
     var cadence: RefreshCadence {
         didSet {
             UserDefaults.standard.set(cadence.rawValue, forKey: "cadence")
@@ -125,6 +143,8 @@ final class AppState {
         let storedRange = defaults.integer(forKey: "dailyRange")
         dailyRange = [7, 30, 60, 90].contains(storedRange) ? storedRange : 30
         popoverFocus = defaults.string(forKey: "popoverFocus").flatMap(ProviderID.init(rawValue:))
+        chartMetric = defaults.string(forKey: "chartMetric")
+            .flatMap(ChartMetric.init(rawValue:)) ?? .cost
         cadence = defaults.string(forKey: "cadence")
             .flatMap(RefreshCadence.init(rawValue:)) ?? .normal
         notificationsEnabled = defaults.object(forKey: "notificationsEnabled") as? Bool ?? true
@@ -227,6 +247,19 @@ final class AppState {
         guard let projection = BurnRate.projection(samples: samples) else { return nil }
         if let resetsAt = window.resetsAt, projection.hitsCapAt >= resetsAt { return nil }
         return projection
+    }
+
+    /// Every enabled provider's daily stats flattened for the combined stacked chart.
+    var combinedDaily: [CombinedPoint] {
+        providers.flatMap { provider -> [CombinedPoint] in
+            let id = type(of: provider).id
+            guard enabledProviders.contains(id), installed.contains(id),
+                  let daily = store.states[id]?.snapshot?.daily else { return [] }
+            return daily.map {
+                CombinedPoint(day: $0.day, provider: provider.displayName,
+                              tokens: $0.tokens, cost: $0.costUSD)
+            }
+        }
     }
 
     /// 24h sparkline series for a provider's primary window.

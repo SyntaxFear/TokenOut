@@ -31,6 +31,9 @@ struct PopoverView: View {
             if visibleProviders.isEmpty {
                 emptyState
             } else {
+                if app.popoverFocus == nil, !app.combinedDaily.isEmpty, visibleProviders.count > 1 {
+                    CombinedCard()
+                }
                 ForEach(shown, id: \.id) { entry in
                     ProviderCard(providerID: entry.id,
                                  displayName: entry.name,

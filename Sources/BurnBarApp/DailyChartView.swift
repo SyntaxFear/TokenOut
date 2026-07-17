@@ -21,25 +21,43 @@ struct DailyChartView: View {
          visible.contains { $0.costIsEstimated })
     }
 
-    /// Token peak drives the chart highlight (the chart plots tokens)…
-    private var busiestDay: DayStat? { visible.max { $0.tokens < $1.tokens } }
-    /// …but the dollar tile must use the most expensive day, which can differ
-    /// (a cache-heavy day can have more tokens yet cost less).
+    /// Chart value, highlight, and peak all follow the SAME selected metric —
+    /// mixing token-peaks with dollar-labels is exactly what confused users.
+    private func value(_ stat: DayStat) -> Double {
+        app.chartMetric == .cost ? stat.costUSD : Double(stat.tokens)
+    }
+    private var peakDay: DayStat? { visible.max { value($0) < value($1) } }
     private var priciestDay: DayStat? { visible.max { $0.costUSD < $1.costUSD } }
+
+    private func compactValue(_ raw: Double) -> String {
+        app.chartMetric == .cost
+            ? (raw >= 1000 ? String(format: "$%.1fK", raw / 1000) : String(format: "$%.0f", raw))
+            : Format.tokens(Int(raw))
+    }
 
     var body: some View {
         @Bindable var app = app
         DisclosureGroup(isExpanded: $expanded) {
             VStack(alignment: .leading, spacing: 6) {
-                Picker("", selection: $app.dailyRange) {
-                    Text("7d").tag(7)
-                    Text("30d").tag(30)
-                    Text("60d").tag(60)
-                    Text("90d").tag(90)
+                HStack(spacing: 6) {
+                    Picker("", selection: $app.dailyRange) {
+                        Text("7d").tag(7)
+                        Text("30d").tag(30)
+                        Text("60d").tag(60)
+                        Text("90d").tag(90)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .controlSize(.mini)
+                    Picker("", selection: $app.chartMetric) {
+                        ForEach(ChartMetric.allCases, id: \.self) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .controlSize(.mini)
+                    .fixedSize()
+                    .help("Plot charts by dollars or tokens")
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .controlSize(.mini)
 
                 if visible.isEmpty {
                     Text("No usage recorded in this range.")
@@ -107,8 +125,8 @@ struct DailyChartView: View {
             } else {
                 Text("\(Format.tokens(totals.tokens)) tokens · \(totals.estimated ? "~" : "")\(Format.usd(totals.cost))")
                 Spacer()
-                if let busiest = busiestDay {
-                    Text("peak \(busiest.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))")
+                if let peak = peakDay {
+                    Text("peak \(peak.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))")
                 }
             }
         }
@@ -122,11 +140,11 @@ struct DailyChartView: View {
         Chart(visible, id: \.day) { stat in
             BarMark(
                 x: .value("Day", stat.day, unit: .day),
-                y: .value("Tokens", stat.tokens)
+                y: .value(app.chartMetric == .cost ? "Cost" : "Tokens", value(stat))
             )
             .foregroundStyle(
                 stat.day == hovered?.day ? AnyShapeStyle(.yellow.gradient)
-                : stat.day == busiestDay?.day ? AnyShapeStyle(.red.gradient)
+                : stat.day == peakDay?.day ? AnyShapeStyle(.red.gradient)
                 : AnyShapeStyle(.orange.gradient))
             .cornerRadius(app.dailyRange <= 30 ? 2 : 1)
         }
@@ -160,16 +178,16 @@ struct DailyChartView: View {
             AxisMarks(values: .automatic(desiredCount: 3)) { value in
                 AxisGridLine().foregroundStyle(.quaternary)
                 AxisValueLabel {
-                    if let tokens = value.as(Int.self) {
-                        Text(Format.tokens(tokens)).font(.system(size: 7.5))
+                    if let raw = value.as(Double.self) {
+                        Text(compactValue(raw)).font(.system(size: 7.5))
                     }
                 }
             }
         }
         .frame(height: 74)
         .overlay(alignment: .topTrailing) {
-            if hovered == nil, let priciest = priciestDay, priciest.costUSD > 0 {
-                Text("\(totals.estimated ? "~" : "")\(Format.usd(priciest.costUSD))")
+            if hovered == nil, let peak = peakDay, value(peak) > 0 {
+                Text("\(totals.estimated && app.chartMetric == .cost ? "~" : "")\(compactValue(value(peak)))")
                     .font(.system(size: 8.5, weight: .medium).monospacedDigit())
                     .foregroundStyle(.tertiary)
                     .padding(.trailing, 2)
