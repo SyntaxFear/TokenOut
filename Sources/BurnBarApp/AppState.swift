@@ -82,6 +82,10 @@ final class AppState {
     let providers: [any UsageProvider] = [ClaudeProvider(), CodexProvider(), AntigravityProvider()]
     private(set) var installed: Set<ProviderID> = []
     private var refreshTasks: [ProviderID: Task<Void, Never>] = [:]
+    /// Providers with a fetch in flight (drives spinners).
+    private(set) var refreshing: Set<ProviderID> = []
+    /// Manual-refresh cooldown so the button can't be hammered.
+    private(set) var refreshCoolingDown = false
     private var failureCounts: [ProviderID: Int] = [:]
     private let notifier = Notifier()
 
@@ -212,6 +216,8 @@ final class AppState {
 
     private func fetchOnce(_ provider: any UsageProvider) async {
         let id = type(of: provider).id
+        refreshing.insert(id)
+        defer { refreshing.remove(id) }
         do {
             let snapshot = try await withTimeout(seconds: 180) { try await provider.fetchUsage() }
             failureCounts[id] = 0
@@ -236,7 +242,13 @@ final class AppState {
     }
 
     func refreshAll() {
+        guard !refreshCoolingDown else { return }
+        refreshCoolingDown = true
         restartLoops()
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(15))
+            self?.refreshCoolingDown = false
+        }
     }
 
     /// Popover-open refresh: only when the newest data is older than 45 s.

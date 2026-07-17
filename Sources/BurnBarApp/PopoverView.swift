@@ -80,11 +80,21 @@ struct PopoverView: View {
             Button {
                 app.refreshAll()
             } label: {
-                Label("Refresh", systemImage: "arrow.clockwise").font(.system(size: 11))
+                if !app.refreshing.isEmpty {
+                    HStack(spacing: 5) {
+                        ProgressView().controlSize(.small).scaleEffect(0.6)
+                        Text("Refreshing…").font(.system(size: 11))
+                    }
+                } else if app.refreshCoolingDown {
+                    Label("Refreshed", systemImage: "checkmark").font(.system(size: 11))
+                } else {
+                    Label("Refresh", systemImage: "arrow.clockwise").font(.system(size: 11))
+                }
             }
             .buttonStyle(.borderless)
+            .disabled(app.refreshCoolingDown || !app.refreshing.isEmpty)
             .clickable()
-            .help("Refresh all providers now")
+            .help("Refresh all providers now (15 s cooldown)")
             Spacer()
             SettingsLink {
                 Image(systemName: "gearshape").font(.system(size: 11))

@@ -41,6 +41,10 @@ struct ProviderCard: View {
                     .background(.tertiary.opacity(0.5), in: Capsule())
             }
             Spacer()
+            if app.refreshing.contains(providerID) {
+                ProgressView().controlSize(.small).scaleEffect(0.5)
+                    .help("Fetching fresh data…")
+            }
             statusBadge
         }
     }
