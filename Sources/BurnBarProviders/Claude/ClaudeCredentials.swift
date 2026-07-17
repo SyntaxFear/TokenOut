@@ -35,6 +35,16 @@ public enum ClaudeCredentials {
         fromKeychain() ?? fromFile()
     }
 
+    /// Set by every keychain read so callers can tell "no item" from "access blocked".
+    nonisolated(unsafe) static var lastKeychainStatus: OSStatus = errSecSuccess
+
+    /// True when the last failure was macOS denying/awaiting the ACL prompt,
+    /// not a missing or dead credential.
+    static var keychainAccessBlocked: Bool {
+        [errSecAuthFailed, errSecUserCanceled, errSecInteractionNotAllowed]
+            .contains(lastKeychainStatus)
+    }
+
     static func fromKeychain() -> ClaudeOAuth? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -43,8 +53,9 @@ public enum ClaudeCredentials {
             kSecMatchLimit as String: kSecMatchLimitOne,
         ]
         var item: CFTypeRef?
-        guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
-              let data = item as? Data else { return nil }
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        lastKeychainStatus = status
+        guard status == errSecSuccess, let data = item as? Data else { return nil }
         return parse(data)
     }
 

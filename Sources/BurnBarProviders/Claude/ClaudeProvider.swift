@@ -31,32 +31,44 @@ public struct ClaudeProvider: UsageProvider {
         var candidates: [ClaudeOAuth] = []
         if let cached = await ClaudeTokenCache.shared.get() { candidates.append(cached) }
         guard let live = ClaudeCredentials.load() else {
+            if ClaudeCredentials.keychainAccessBlocked {
+                // Not a dead session — macOS is (still) gating the Keychain item.
+                throw ProviderError.signedOut(help:
+                    "macOS is blocking Keychain access. Click “Always Allow” on the prompt (relaunch BurnBar if it's gone).")
+            }
             throw ProviderError.signedOut(help: signedOutHelp)
         }
         if !candidates.contains(where: { $0.accessToken == live.accessToken }) {
             candidates.append(live)
         }
 
+        // Only a real 401 moves us to the next token; network/decoding failures
+        // propagate as-is (stale card) and must NEVER trigger a refresh grant —
+        // that's what used to burn the CLI's rotating refresh token.
         var windows: [LimitWindow]?
         var workingCreds: ClaudeOAuth = live
         for creds in candidates {
-            if let fetched = try? await ClaudeUsageAPI.fetch(token: creds.accessToken) {
-                windows = fetched
+            do {
+                windows = try await ClaudeUsageAPI.fetch(token: creds.accessToken)
                 workingCreds = creds
                 break
+            } catch ProviderError.signedOut {
+                continue
             }
         }
         if windows == nil {
-            // Last resort, once per token: our own refresh, cached in memory so the
-            // rotated token is reused instead of re-granting every cycle.
-            guard let refreshed = await ClaudeCredentials.refresh(live),
-                  let fetched = try? await ClaudeUsageAPI.fetch(token: refreshed.accessToken)
-            else {
+            // Every candidate got a true 401: one refresh grant, cached for reuse.
+            guard let refreshed = await ClaudeCredentials.refresh(live) else {
                 await ClaudeTokenCache.shared.set(nil)
                 throw ProviderError.signedOut(help: signedOutHelp)
             }
-            windows = fetched
-            workingCreds = refreshed
+            do {
+                windows = try await ClaudeUsageAPI.fetch(token: refreshed.accessToken)
+                workingCreds = refreshed
+            } catch ProviderError.signedOut {
+                await ClaudeTokenCache.shared.set(nil)
+                throw ProviderError.signedOut(help: signedOutHelp)
+            }
         }
         await ClaudeTokenCache.shared.set(workingCreds)
         let creds = workingCreds
