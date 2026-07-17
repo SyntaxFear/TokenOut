@@ -150,6 +150,47 @@ export default function Home() {
         </Reveal>
       </section>
 
+      <section className="product-gallery shell">
+        <Reveal className="gallery-copy">
+          <h2>The real app, down to the details.</h2>
+          <p>
+            A full-height overview when every provider is visible, plus precise controls for what BurnBar shows and how updates run.
+          </p>
+          <small>Actual BurnBar interface with sample usage data.</small>
+        </Reveal>
+        <div className="gallery-grid">
+          <Reveal className="screenshot screenshot-tall">
+            <Image
+              src="/assets/app-popover-real.png"
+              alt="BurnBar full-height multi-provider popover with a thin overlay scrollbar"
+              width={340}
+              height={1415}
+              sizes="(max-width: 720px) 84vw, 340px"
+            />
+          </Reveal>
+          <div className="settings-stack">
+            <Reveal className="screenshot" delay={0.05}>
+              <Image
+                src="/assets/settings-display-real.png"
+                alt="BurnBar Display settings with controls for menu bar metrics and popover sections"
+                width={680}
+                height={552}
+                sizes="(max-width: 960px) 100vw, 680px"
+              />
+            </Reveal>
+            <Reveal className="screenshot" delay={0.1}>
+              <Image
+                src="/assets/settings-updates-real.png"
+                alt="BurnBar automatic update settings powered by Sparkle"
+                width={680}
+                height={552}
+                sizes="(max-width: 960px) 100vw, 680px"
+              />
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
       <section className="privacy-story shell">
         <Reveal className="privacy-mark">
           <Image src="/assets/burnbar-symbol.png" alt="BurnBar flame meter symbol" width={665} height={401} />

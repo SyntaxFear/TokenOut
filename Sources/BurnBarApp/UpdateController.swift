@@ -10,9 +10,9 @@ final class UpdateController {
     @ObservationIgnored
     private let standardController: SPUStandardUpdaterController
 
-    init() {
+    init(startingUpdater: Bool = true) {
         standardController = SPUStandardUpdaterController(
-            startingUpdater: true,
+            startingUpdater: startingUpdater,
             updaterDelegate: nil,
             userDriverDelegate: nil
         )

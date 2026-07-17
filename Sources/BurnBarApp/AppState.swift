@@ -77,8 +77,8 @@ enum RefreshCadence: String, CaseIterable {
 @MainActor
 @Observable
 final class AppState {
-    let store = UsageStore()
-    let history = HistoryStore()
+    let store: UsageStore
+    let history: HistoryStore
     let providers: [any UsageProvider] = [ClaudeProvider(), CodexProvider(), AntigravityProvider()]
     private(set) var installed: Set<ProviderID> = []
     private var refreshTasks: [ProviderID: Task<Void, Never>] = [:]
@@ -158,7 +158,17 @@ final class AppState {
         didSet { UserDefaults.standard.set(hasOnboarded, forKey: "hasOnboarded") }
     }
 
-    init() {
+    init(previewSnapshots: [UsageSnapshot]? = nil) {
+        if previewSnapshots == nil {
+            store = UsageStore()
+            history = HistoryStore()
+        } else {
+            let previewRoot = FileManager.default.temporaryDirectory
+                .appending(path: "BurnBar-MarketingPreview-\(UUID().uuidString)")
+            store = UsageStore(persistenceURL: previewRoot.appending(path: "state.json"))
+            history = HistoryStore(url: previewRoot.appending(path: "history.jsonl"))
+        }
+
         let defaults = UserDefaults.standard
         let storedEnabled = defaults.stringArray(forKey: "enabledProviders")?
             .compactMap(ProviderID.init(rawValue:))
@@ -188,13 +198,36 @@ final class AppState {
         refillNotifications = defaults.object(forKey: "refillNotifications") as? Bool ?? true
         hasOnboarded = defaults.bool(forKey: "hasOnboarded")
 
-        NSWorkspace.shared.notificationCenter.addObserver(
-            forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in self?.refreshAll() }
-        }
+        if let previewSnapshots {
+            let previewIDs = Set(previewSnapshots.map(\.providerID))
+            // Set enabled IDs while `installed` is still empty so the didSet does
+            // not start provider refresh loops in deterministic marketing previews.
+            enabledProviders = previewIDs
+            installed = previewIDs
+            popoverFocus = nil
+            dailyRange = 7
+            chartMetric = .cost
+            showRemaining = false
+            showCombinedOverview = true
+            showDailyCharts = true
+            showBreakdowns = true
+            showProviderDetails = true
+            notificationsEnabled = false
+            refillNotifications = false
+            hasOnboarded = true
+            for snapshot in previewSnapshots {
+                store.apply(result: .success(snapshot), for: snapshot.providerID)
+                history.record(snapshot: snapshot)
+            }
+        } else {
+            NSWorkspace.shared.notificationCenter.addObserver(
+                forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor in self?.refreshAll() }
+            }
 
-        Task { await detectAndStart() }
+            Task { await detectAndStart() }
+        }
     }
 
     func detectAndStart() async {

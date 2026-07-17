@@ -2,7 +2,7 @@ import SwiftUI
 import ServiceManagement
 import BurnBarCore
 
-private enum SettingsTab: Hashable {
+enum SettingsTab: Hashable {
     case general, providers, display, refresh, alerts, updates, about
 }
 
@@ -10,7 +10,19 @@ struct SettingsView: View {
     @Environment(AppState.self) private var app
     @Environment(UpdateController.self) private var updates
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
-    @State private var selectedTab: SettingsTab = .general
+    @State private var selectedTab: SettingsTab
+
+    init(initialTab: SettingsTab? = nil) {
+        let previewMode = MarketingPreviewMode(arguments: CommandLine.arguments)
+        let resolvedTab = initialTab ?? {
+            switch previewMode {
+            case .displaySettings: return .display
+            case .updateSettings: return .updates
+            default: return .general
+            }
+        }()
+        _selectedTab = State(initialValue: resolvedTab)
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -36,7 +48,7 @@ struct SettingsView: View {
                 .tabItem { Label("About", systemImage: "info.circle") }
                 .tag(SettingsTab.about)
         }
-        .frame(width: 570, height: 485)
+        .frame(width: 680, height: 500)
     }
 
     private var generalSettings: some View {
