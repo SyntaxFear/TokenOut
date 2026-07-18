@@ -11,7 +11,7 @@ A macOS menu bar app that shows live usage, rate-limit windows, and token totals
 
 - macOS 14+ (Apple Silicon + Intel universal binary)
 - Menu-bar-only app (`LSUIElement`), no Dock icon
-- Privacy story: all usage data stays on-device; credentials are read locally and only ever sent to each provider's own official API; the only TokenOut server traffic is license validation and update checks
+- Privacy story: provider usage data stays on-device; credentials are read locally and only ever sent to each provider's own official API; TokenOut server traffic is limited to updates and one anonymous first-launch event with app and platform versions
 - Price ballpark at launch: $9 solo / $15 all-tools (final call later; not a build blocker)
 
 ## 2. Architecture

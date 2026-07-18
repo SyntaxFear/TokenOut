@@ -16,6 +16,7 @@ All public TokenOut releases are documented here and at [tokenout.scrubmac.app/r
 ### Privacy
 
 - TokenOut stores preferences and derived usage history locally.
-- No TokenOut account, analytics, advertising SDK, telemetry backend, or cloud sync.
+- No TokenOut account, advertising SDK, provider-usage telemetry, or cloud sync.
+- One anonymous first-launch event records only app version, build, macOS version, and processor architecture.
 
 [1.0.0]: https://github.com/SyntaxFear/TokenOut/releases/tag/v1.0.0

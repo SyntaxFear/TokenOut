@@ -12,7 +12,7 @@
 "About" = "О программе";
 "Alerts" = "Оповещения";
 "All providers" = "Все провайдеры";
-"All usage data stays on this Mac. No analytics, telemetry, or TokenOut account." = "Все данные об использовании остаются на этом Mac. Никакой аналитики, телеметрии или учётной записи TokenOut.";
+"Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync." = "История использования остаётся на этом Mac. TokenOut отправляет только анонимный сигнал при первом запуске и не использует учётную запись или облачную синхронизацию.";
 "Appearance" = "Внешний вид";
 "Automatic refresh" = "Автообновление";
 "Automatically check for updates" = "Автоматически проверять обновления";
@@ -145,3 +145,7 @@
 "Today's tokens" = "Токены за сегодня";
 "Today's cost" = "Расходы за сегодня";
 "Combine any of these — the menu bar shows exactly what you pick." = "Комбинируйте как угодно — в строке меню будет ровно то, что вы выбрали.";
+"Version %1$@ (%2$@)" = "Версия %1$@ (%2$@)";
+"Released %@" = "Выпущено %@";
+"Updates: signed Sparkle feed from %@" = "Обновления: подписанный фид Sparkle с %@";
+"GitHub" = "GitHub";

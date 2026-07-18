@@ -371,17 +371,30 @@ struct SettingsView: View {
                 Text("Your AI usage, live in the menu bar.")
                     .tokenOutFont(12).foregroundStyle(.secondary)
             }
-            Text("Version \(version) (\(build))")
-                .tokenOutFont(11, monospacedDigit: true)
-                .foregroundStyle(.secondary)
+            VStack(spacing: 3) {
+                Text(String(format: tokenOutLocalized("Version %1$@ (%2$@)", "Version %1$@ (%2$@)"),
+                            version, build))
+                    .tokenOutFont(12, weight: .semibold, monospacedDigit: true)
+                if let released = releaseDateText {
+                    Text(String(format: tokenOutLocalized("Released %@", "Released %@"), released))
+                        .tokenOutFont(10.5)
+                        .foregroundStyle(.secondary)
+                }
+                Text(String(format: tokenOutLocalized("Updates: signed Sparkle feed from %@",
+                                                      "Updates: signed Sparkle feed from %@"),
+                            "tokenout.scrubmac.app"))
+                    .tokenOutFont(9.5)
+                    .foregroundStyle(.tertiary)
+            }
             HStack(spacing: 14) {
                 Link("Website", destination: URL(string: "https://tokenout.scrubmac.app")!)
                 Link("Privacy", destination: URL(string: "https://tokenout.scrubmac.app/privacy")!)
+                Link("GitHub", destination: URL(string: "https://github.com/SyntaxFear/TokenOut")!)
                 Button("Check for Updates…") { updates.checkForUpdates() }
                     .buttonStyle(.link)
                     .disabled(!updates.canCheckForUpdates)
             }
-            Text("All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.")
+            Text("Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.")
                 .tokenOutFont(10.5)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -439,6 +452,17 @@ struct SettingsView: View {
 
     private var build: String {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "local"
+    }
+
+    /// Release date from Info.plist ("TOReleaseDate", set per release by the
+    /// bundle metadata), rendered in the user's locale.
+    private var releaseDateText: String? {
+        guard let raw = Bundle.main.infoDictionary?["TOReleaseDate"] as? String else { return nil }
+        let parser = DateFormatter()
+        parser.dateFormat = "yyyy-MM-dd"
+        parser.timeZone = TimeZone(identifier: "UTC")
+        guard let date = parser.date(from: raw) else { return raw }
+        return date.formatted(date: .long, time: .omitted)
     }
 }
 

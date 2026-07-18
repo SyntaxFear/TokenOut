@@ -23,7 +23,7 @@ EN = {
     "About": "About",
     "Alerts": "Alerts",
     "All providers": "All providers",
-    "All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.": "All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.",
+    "Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.": "Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.",
     "Appearance": "Appearance",
     "Automatic refresh": "Automatic refresh",
     "Automatically check for updates": "Automatically check for updates",
@@ -156,6 +156,10 @@ EN = {
     "Today's tokens": "Today's tokens",
     "Today's cost": "Today's cost",
     "Combine any of these — the menu bar shows exactly what you pick.": "Combine any of these — the menu bar shows exactly what you pick.",
+    "Version %1$@ (%2$@)": "Version %1$@ (%2$@)",
+    "Released %@": "Released %@",
+    "Updates: signed Sparkle feed from %@": "Updates: signed Sparkle feed from %@",
+    "GitHub": "GitHub",
 }
 
 TRANSLATIONS = {}
@@ -166,7 +170,7 @@ TRANSLATIONS["es"] = {
     "A few Google Fonts, alongside the system font.": "Algunas fuentes de Google Fonts, además de la fuente del sistema.",
     "API-equivalent cost": "Costo equivalente de API",
     "About": "Acerca de", "Alerts": "Alertas", "All providers": "Todos los proveedores",
-    "All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.": "Todos los datos de uso permanecen en este Mac. Sin análisis, telemetría ni cuenta de TokenOut.",
+    "Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.": "El historial de uso permanece en este Mac. TokenOut solo envía una señal anónima en el primer inicio y no tiene cuenta ni sincronización en la nube.",
     "Appearance": "Apariencia", "Automatic refresh": "Actualización automática",
     "Automatically check for updates": "Buscar actualizaciones automáticamente",
     "TokenOut looks for Claude Code and Codex.": "TokenOut busca Claude Code y Codex.",
@@ -264,6 +268,10 @@ TRANSLATIONS["es"] = {
     "Today's tokens": "Tokens de hoy",
     "Today's cost": "Costo de hoy",
     "Combine any of these — the menu bar shows exactly what you pick.": "Combina cualquiera de estos: la barra de menús muestra exactamente lo que elijas.",
+    "Version %1$@ (%2$@)": "Versión %1$@ (%2$@)",
+    "Released %@": "Publicado el %@",
+    "Updates: signed Sparkle feed from %@": "Actualizaciones: feed de Sparkle firmado desde %@",
+    "GitHub": "GitHub",
 }
 
 TRANSLATIONS["fr"] = {
@@ -272,7 +280,7 @@ TRANSLATIONS["fr"] = {
     "A few Google Fonts, alongside the system font.": "Quelques polices Google Fonts, en plus de la police système.",
     "API-equivalent cost": "Coût équivalent API",
     "About": "À propos", "Alerts": "Alertes", "All providers": "Tous les fournisseurs",
-    "All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.": "Toutes les données d'utilisation restent sur ce Mac. Aucune analyse, télémétrie ou compte TokenOut.",
+    "Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.": "L’historique d’utilisation reste sur ce Mac. TokenOut envoie uniquement un signal anonyme au premier lancement et n’utilise ni compte ni synchronisation cloud.",
     "Appearance": "Apparence", "Automatic refresh": "Actualisation automatique",
     "Automatically check for updates": "Rechercher les mises à jour automatiquement",
     "TokenOut looks for Claude Code and Codex.": "TokenOut recherche Claude Code et Codex.",
@@ -370,6 +378,10 @@ TRANSLATIONS["fr"] = {
     "Today's tokens": "Jetons du jour",
     "Today's cost": "Coût du jour",
     "Combine any of these — the menu bar shows exactly what you pick.": "Combinez librement — la barre de menus affiche exactement votre sélection.",
+    "Version %1$@ (%2$@)": "Version %1$@ (%2$@)",
+    "Released %@": "Publié le %@",
+    "Updates: signed Sparkle feed from %@": "Mises à jour : flux Sparkle signé depuis %@",
+    "GitHub": "GitHub",
 }
 
 TRANSLATIONS["de"] = {
@@ -378,7 +390,7 @@ TRANSLATIONS["de"] = {
     "A few Google Fonts, alongside the system font.": "Einige Google Fonts neben der Systemschrift.",
     "API-equivalent cost": "API-äquivalente Kosten",
     "About": "Info", "Alerts": "Warnungen", "All providers": "Alle Anbieter",
-    "All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.": "Alle Nutzungsdaten bleiben auf diesem Mac. Keine Analyse, Telemetrie oder TokenOut-Konto.",
+    "Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.": "Der Nutzungsverlauf bleibt auf diesem Mac. TokenOut sendet nur ein anonymes Signal beim ersten Start und verwendet weder Konto noch Cloud-Synchronisierung.",
     "Appearance": "Erscheinungsbild", "Automatic refresh": "Automatische Aktualisierung",
     "Automatically check for updates": "Automatisch nach Updates suchen",
     "TokenOut looks for Claude Code and Codex.": "TokenOut sucht nach Claude Code und Codex.",
@@ -476,6 +488,10 @@ TRANSLATIONS["de"] = {
     "Today's tokens": "Tokens heute",
     "Today's cost": "Kosten heute",
     "Combine any of these — the menu bar shows exactly what you pick.": "Beliebig kombinierbar — die Menüleiste zeigt genau deine Auswahl.",
+    "Version %1$@ (%2$@)": "Version %1$@ (%2$@)",
+    "Released %@": "Veröffentlicht am %@",
+    "Updates: signed Sparkle feed from %@": "Updates: signierter Sparkle-Feed von %@",
+    "GitHub": "GitHub",
 }
 
 TRANSLATIONS["pt"] = {
@@ -484,7 +500,7 @@ TRANSLATIONS["pt"] = {
     "A few Google Fonts, alongside the system font.": "Algumas fontes do Google Fonts, além da fonte do sistema.",
     "API-equivalent cost": "Custo equivalente de API",
     "About": "Sobre", "Alerts": "Alertas", "All providers": "Todos os provedores",
-    "All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.": "Todos os dados de uso permanecem neste Mac. Sem análises, telemetria ou conta TokenOut.",
+    "Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.": "O histórico de uso permanece neste Mac. O TokenOut envia apenas um sinal anônimo na primeira inicialização e não usa conta nem sincronização na nuvem.",
     "Appearance": "Aparência", "Automatic refresh": "Atualização automática",
     "Automatically check for updates": "Verificar atualizações automaticamente",
     "TokenOut looks for Claude Code and Codex.": "O TokenOut procura por Claude Code e Codex.",
@@ -582,6 +598,10 @@ TRANSLATIONS["pt"] = {
     "Today's tokens": "Tokens de hoje",
     "Today's cost": "Custo de hoje",
     "Combine any of these — the menu bar shows exactly what you pick.": "Combine qualquer um deles — a barra de menus mostra exatamente o que você escolher.",
+    "Version %1$@ (%2$@)": "Versão %1$@ (%2$@)",
+    "Released %@": "Lançado em %@",
+    "Updates: signed Sparkle feed from %@": "Atualizações: feed Sparkle assinado de %@",
+    "GitHub": "GitHub",
 }
 
 TRANSLATIONS["ru"] = {
@@ -590,7 +610,7 @@ TRANSLATIONS["ru"] = {
     "A few Google Fonts, alongside the system font.": "Несколько шрифтов Google Fonts, а также системный шрифт.",
     "API-equivalent cost": "Стоимость в эквиваленте API",
     "About": "О программе", "Alerts": "Оповещения", "All providers": "Все провайдеры",
-    "All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.": "Все данные об использовании остаются на этом Mac. Никакой аналитики, телеметрии или учётной записи TokenOut.",
+    "Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.": "История использования остаётся на этом Mac. TokenOut отправляет только анонимный сигнал при первом запуске и не использует учётную запись или облачную синхронизацию.",
     "Appearance": "Внешний вид", "Automatic refresh": "Автообновление",
     "Automatically check for updates": "Автоматически проверять обновления",
     "TokenOut looks for Claude Code and Codex.": "TokenOut ищет Claude Code и Codex.",
@@ -688,6 +708,10 @@ TRANSLATIONS["ru"] = {
     "Today's tokens": "Токены за сегодня",
     "Today's cost": "Расходы за сегодня",
     "Combine any of these — the menu bar shows exactly what you pick.": "Комбинируйте как угодно — в строке меню будет ровно то, что вы выбрали.",
+    "Version %1$@ (%2$@)": "Версия %1$@ (%2$@)",
+    "Released %@": "Выпущено %@",
+    "Updates: signed Sparkle feed from %@": "Обновления: подписанный фид Sparkle с %@",
+    "GitHub": "GitHub",
 }
 
 TRANSLATIONS["ja"] = {
@@ -696,7 +720,7 @@ TRANSLATIONS["ja"] = {
     "A few Google Fonts, alongside the system font.": "システムフォントに加え、いくつかのGoogle Fontsを利用できます。",
     "API-equivalent cost": "API換算コスト",
     "About": "情報", "Alerts": "アラート", "All providers": "すべてのプロバイダー",
-    "All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.": "利用データはすべてこのMac内にとどまります。分析、テレメトリ、TokenOutアカウントは一切ありません。",
+    "Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.": "使用履歴はこのMac内に保存されます。TokenOutが送信するのは初回起動時の匿名シグナルのみで、アカウントやクラウド同期はありません。",
     "Appearance": "外観", "Automatic refresh": "自動更新",
     "Automatically check for updates": "自動的にアップデートを確認",
     "TokenOut looks for Claude Code and Codex.": "TokenOutはClaude CodeとCodexを検出します。",
@@ -794,6 +818,10 @@ TRANSLATIONS["ja"] = {
     "Today's tokens": "今日のトークン",
     "Today's cost": "今日のコスト",
     "Combine any of these — the menu bar shows exactly what you pick.": "自由に組み合わせ可能 — メニューバーには選んだものだけが表示されます。",
+    "Version %1$@ (%2$@)": "バージョン %1$@（%2$@）",
+    "Released %@": "%@ リリース",
+    "Updates: signed Sparkle feed from %@": "更新: %@ からの署名付きSparkleフィード",
+    "GitHub": "GitHub",
 }
 
 TRANSLATIONS["zh"] = {
@@ -802,7 +830,7 @@ TRANSLATIONS["zh"] = {
     "A few Google Fonts, alongside the system font.": "除系统字体外，还提供多款 Google Fonts 字体。",
     "API-equivalent cost": "API 等值费用",
     "About": "关于", "Alerts": "提醒", "All providers": "所有服务商",
-    "All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.": "所有使用数据均保留在本机上。没有数据分析、遥测，也不需要 TokenOut 账户。",
+    "Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.": "使用历史记录保留在此 Mac 上。TokenOut 仅在首次启动时发送匿名信号，不需要账户，也不使用云同步。",
     "Appearance": "外观", "Automatic refresh": "自动刷新",
     "Automatically check for updates": "自动检查更新",
     "TokenOut looks for Claude Code and Codex.": "TokenOut 会检测 Claude Code 和 Codex。",
@@ -900,6 +928,10 @@ TRANSLATIONS["zh"] = {
     "Today's tokens": "今日 Token",
     "Today's cost": "今日费用",
     "Combine any of these — the menu bar shows exactly what you pick.": "可任意组合 — 菜单栏只显示你选择的内容。",
+    "Version %1$@ (%2$@)": "版本 %1$@（%2$@）",
+    "Released %@": "发布于 %@",
+    "Updates: signed Sparkle feed from %@": "更新：来自 %@ 的签名 Sparkle 源",
+    "GitHub": "GitHub",
 }
 
 TRANSLATIONS["hi"] = {
@@ -908,7 +940,7 @@ TRANSLATIONS["hi"] = {
     "A few Google Fonts, alongside the system font.": "सिस्टम फ़ॉन्ट के साथ-साथ कुछ Google Fonts भी उपलब्ध हैं।",
     "API-equivalent cost": "API-समतुल्य लागत",
     "About": "परिचय", "Alerts": "अलर्ट", "All providers": "सभी प्रदाता",
-    "All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.": "सभी उपयोग डेटा इसी Mac पर रहता है। कोई एनालिटिक्स, टेलीमेट्री या TokenOut खाता नहीं है।",
+    "Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.": "उपयोग इतिहास इसी Mac पर रहता है। TokenOut केवल पहली बार शुरू होने पर एक अनाम संकेत भेजता है और इसमें खाता या क्लाउड सिंक नहीं है।",
     "Appearance": "रूप-रंग", "Automatic refresh": "स्वचालित रीफ्रेश",
     "Automatically check for updates": "अपडेट के लिए स्वचालित रूप से जाँच करें",
     "TokenOut looks for Claude Code and Codex.": "TokenOut Claude Code और Codex को खोजता है।",
@@ -1006,6 +1038,10 @@ TRANSLATIONS["hi"] = {
     "Today's tokens": "आज के टोकन",
     "Today's cost": "आज की लागत",
     "Combine any of these — the menu bar shows exactly what you pick.": "इनमें से कोई भी संयोजन चुनें — मेन्यू बार वही दिखाएगा जो आप चुनेंगे।",
+    "Version %1$@ (%2$@)": "संस्करण %1$@ (%2$@)",
+    "Released %@": "%@ को जारी",
+    "Updates: signed Sparkle feed from %@": "अपडेट: %@ से हस्ताक्षरित Sparkle फ़ीड",
+    "GitHub": "GitHub",
 }
 
 TRANSLATIONS["ar"] = {
@@ -1014,7 +1050,7 @@ TRANSLATIONS["ar"] = {
     "A few Google Fonts, alongside the system font.": "بضعة خطوط من Google Fonts، إلى جانب خط النظام.",
     "API-equivalent cost": "التكلفة المكافئة لواجهة برمجة التطبيقات",
     "About": "حول", "Alerts": "التنبيهات", "All providers": "جميع الموفرين",
-    "All usage data stays on this Mac. No analytics, telemetry, or TokenOut account.": "تبقى جميع بيانات الاستخدام على هذا الـMac. لا تحليلات ولا قياس عن بُعد ولا حساب TokenOut.",
+    "Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync.": "يبقى سجل الاستخدام على هذا الـ Mac. يرسل TokenOut إشارة مجهولة الهوية عند التشغيل الأول فقط، ولا يستخدم حسابًا أو مزامنة سحابية.",
     "Appearance": "المظهر", "Automatic refresh": "التحديث التلقائي",
     "Automatically check for updates": "التحقق التلقائي من التحديثات",
     "TokenOut looks for Claude Code and Codex.": "يبحث TokenOut عن Claude Code وCodex.",
@@ -1112,6 +1148,10 @@ TRANSLATIONS["ar"] = {
     "Today's tokens": "رموز اليوم",
     "Today's cost": "تكلفة اليوم",
     "Combine any of these — the menu bar shows exactly what you pick.": "اجمع أيًا منها — يعرض شريط القوائم ما تختاره بالضبط.",
+    "Version %1$@ (%2$@)": "الإصدار %1$@ (%2$@)",
+    "Released %@": "صدر في %@",
+    "Updates: signed Sparkle feed from %@": "التحديثات: خلاصة Sparkle موقعة من %@",
+    "GitHub": "GitHub",
 }
 
 def escape(s):

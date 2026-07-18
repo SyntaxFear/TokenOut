@@ -12,7 +12,7 @@
 "About" = "情報";
 "Alerts" = "アラート";
 "All providers" = "すべてのプロバイダー";
-"All usage data stays on this Mac. No analytics, telemetry, or TokenOut account." = "利用データはすべてこのMac内にとどまります。分析、テレメトリ、TokenOutアカウントは一切ありません。";
+"Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync." = "使用履歴はこのMac内に保存されます。TokenOutが送信するのは初回起動時の匿名シグナルのみで、アカウントやクラウド同期はありません。";
 "Appearance" = "外観";
 "Automatic refresh" = "自動更新";
 "Automatically check for updates" = "自動的にアップデートを確認";
@@ -145,3 +145,7 @@
 "Today's tokens" = "今日のトークン";
 "Today's cost" = "今日のコスト";
 "Combine any of these — the menu bar shows exactly what you pick." = "自由に組み合わせ可能 — メニューバーには選んだものだけが表示されます。";
+"Version %1$@ (%2$@)" = "バージョン %1$@（%2$@）";
+"Released %@" = "%@ リリース";
+"Updates: signed Sparkle feed from %@" = "更新: %@ からの署名付きSparkleフィード";
+"GitHub" = "GitHub";

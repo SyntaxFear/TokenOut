@@ -4,7 +4,7 @@
 
 Canonical website: https://tokenout.scrubmac.app
 Official source: https://github.com/SyntaxFear/TokenOut
-Latest download: https://github.com/SyntaxFear/TokenOut/releases/latest/download/TokenOut.dmg
+Latest download: https://tokenout.scrubmac.app/download
 Release history: https://tokenout.scrubmac.app/releases
 Privacy policy: https://tokenout.scrubmac.app/privacy
 Signed update feed: https://tokenout.scrubmac.app/appcast.xml
@@ -22,6 +22,7 @@ Extended product reference: https://tokenout.scrubmac.app/llms-full.txt
 - Requires macOS 14 or later.
 - Universal build for Apple silicon and Intel Macs.
 - Native SwiftUI menu bar application with no Dock icon.
-- Local-first history; no TokenOut account, analytics, advertising SDK, telemetry backend, or cloud sync.
+- Local-first provider history; no TokenOut account, advertising SDK, provider-usage telemetry, or cloud sync.
+- One anonymous first-launch event contains app version, build, macOS version, and processor architecture only.
 - Signed Sparkle automatic updates distributed from the official update feed.
 - Open-source code and release notes are available in the official GitHub repository.

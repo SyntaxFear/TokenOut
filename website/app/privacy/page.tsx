@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
   openGraph: {
     title: "TokenOut privacy policy",
-    description: "TokenOut keeps usage history on your Mac and has no analytics, telemetry, account, or cloud sync.",
+    description: "TokenOut keeps provider usage history on your Mac and collects only anonymous website and installation counts.",
     url: "/privacy",
     type: "website",
     images: [{ url: "/opengraph-image.png", width: 1200, height: 630, alt: "TokenOut for macOS" }],
@@ -61,10 +61,21 @@ export default function PrivacyPage() {
             provider&apos;s official service. TokenOut also requests its signed update feed from tokenout.scrubmac.app.
           </p>
 
+          <h2>Anonymous analytics</h2>
+          <p>
+            The website uses Vercel Web Analytics for anonymous page-view and referrer totals. Download links pass through a TokenOut
+            redirect so download requests can be counted before the file is served by GitHub.
+          </p>
+          <p>
+            After the app first launches successfully, it sends one anonymous installation event containing only the TokenOut version,
+            build number, macOS version, and processor architecture. The event has no name, email, provider data, usage history, device
+            identifier, advertising identifier, or account identifier. If delivery fails, TokenOut retries on a later launch.
+          </p>
+
           <h2>What TokenOut does not collect</h2>
           <p>
-            TokenOut has no analytics SDK, advertising SDK, user account, telemetry backend, or cloud sync. It does not sell or share
-            your usage history.
+            TokenOut does not collect provider credentials, prompts, filenames, token history, cost history, or rate-limit values. It has
+            no advertising SDK, user account, or cloud sync, and it does not sell personal data.
           </p>
 
           <h2>Storage</h2>

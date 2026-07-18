@@ -2,7 +2,7 @@
 
 **Every AI limit. One glance.** TokenOut is a private native macOS menu bar app for tracking usage, rate-limit windows, tokens, and API-equivalent cost across AI coding tools.
 
-[Website](https://tokenout.scrubmac.app) | [Download](https://github.com/SyntaxFear/TokenOut/releases/latest/download/TokenOut.dmg) | [Releases](https://tokenout.scrubmac.app/releases) | [Privacy](https://tokenout.scrubmac.app/privacy)
+[Website](https://tokenout.scrubmac.app) | [Download](https://tokenout.scrubmac.app/download) | [Releases](https://tokenout.scrubmac.app/releases) | [Privacy](https://tokenout.scrubmac.app/privacy)
 
 ## Supported providers
 
@@ -18,7 +18,7 @@ Currency precision is visually quieter throughout the app: cents in values such 
 
 ## Privacy
 
-TokenOut reads each tool's existing local state and contacts only that provider's official service when a live quota refresh is available. It does not include analytics, telemetry, advertising SDKs, a TokenOut account, or cloud sync.
+TokenOut reads each tool's existing local state and contacts only that provider's official service when a live quota refresh is available. Provider usage history stays local. TokenOut sends one anonymous first-launch event containing only app version, build, macOS version, and processor architecture; it has no advertising SDK, TokenOut account, or cloud sync.
 
 Claude Code credentials remain in Claude Code's original Keychain item. When Claude rotates its OAuth refresh token, TokenOut persists the rotated credential back to that item so both apps remain signed in. macOS may show a Keychain access prompt on first use.
 
@@ -85,6 +85,8 @@ npm run build
 ```
 
 It includes canonical metadata, SoftwareApplication structured data, Open Graph artwork, branded icons and manifest, `robots.txt`, `sitemap.xml`, `llms.txt`, `llms-full.txt`, privacy and release-history pages, and the signed Sparkle appcast endpoint.
+
+Analytics definitions and reporting commands are documented in [docs/analytics.md](docs/analytics.md).
 
 ## Architecture
 

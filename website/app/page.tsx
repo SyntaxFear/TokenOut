@@ -110,7 +110,7 @@ export default function Home() {
           </a>
         </nav>
 
-        <a className="button button-compact" href={downloadURL}>
+        <a className="button button-compact" href={`${downloadURL}?placement=header`}>
           <ArrowDown aria-hidden="true" />
           <span className="download-long">Download for Mac</span>
           <span className="download-short">Download</span>
@@ -131,7 +131,7 @@ export default function Home() {
               Track Claude Code, Codex, and Antigravity usage, reset times, tokens, and cost from your menu bar.
             </p>
             <div className="hero-actions">
-              <a className="button" href={downloadURL}>
+              <a className="button" href={`${downloadURL}?placement=hero`}>
                 <ArrowDown aria-hidden="true" />
                 Download v{latestRelease.version}
               </a>
@@ -320,7 +320,7 @@ export default function Home() {
               TokenOut reads local tool data and contacts only each provider&apos;s official service when a live quota refresh is available.
             </p>
             <div className="privacy-points">
-              <span><CheckCircle aria-hidden="true" /> No analytics or telemetry</span>
+              <span><CheckCircle aria-hidden="true" /> No provider-usage telemetry</span>
               <span><CheckCircle aria-hidden="true" /> No cloud sync</span>
               <span><CheckCircle aria-hidden="true" /> No separate account</span>
             </div>
@@ -362,7 +362,7 @@ export default function Home() {
               <h2>Keep every limit within reach.</h2>
               <p>Install TokenOut, open the menu bar, and stop checking three tools separately.</p>
             </div>
-            <a className="button" href={downloadURL}>
+            <a className="button" href={`${downloadURL}?placement=footer-cta`}>
               <ArrowDown aria-hidden="true" />
               Download for Mac
             </a>

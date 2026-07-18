@@ -12,7 +12,7 @@
 "About" = "关于";
 "Alerts" = "提醒";
 "All providers" = "所有服务商";
-"All usage data stays on this Mac. No analytics, telemetry, or TokenOut account." = "所有使用数据均保留在本机上。没有数据分析、遥测，也不需要 TokenOut 账户。";
+"Usage history stays on this Mac. TokenOut sends only an anonymous first-launch signal and has no account or cloud sync." = "使用历史记录保留在此 Mac 上。TokenOut 仅在首次启动时发送匿名信号，不需要账户，也不使用云同步。";
 "Appearance" = "外观";
 "Automatic refresh" = "自动刷新";
 "Automatically check for updates" = "自动检查更新";
@@ -145,3 +145,7 @@
 "Today's tokens" = "今日 Token";
 "Today's cost" = "今日费用";
 "Combine any of these — the menu bar shows exactly what you pick." = "可任意组合 — 菜单栏只显示你选择的内容。";
+"Version %1$@ (%2$@)" = "版本 %1$@（%2$@）";
+"Released %@" = "发布于 %@";
+"Updates: signed Sparkle feed from %@" = "更新：来自 %@ 的签名 Sparkle 源";
+"GitHub" = "GitHub";

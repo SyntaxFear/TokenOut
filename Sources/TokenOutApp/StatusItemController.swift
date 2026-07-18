@@ -235,10 +235,24 @@ final class StatusItemController: NSObject {
         let desiredY = anchorTop - height
         guard abs(frame.height - height) > 0.5
                 || (panel.isVisible && abs(frame.origin.y - desiredY) > 0.5) else { return }
+        let shrinking = height < frame.height - 0.5
+        frame.origin.y = desiredY
+        frame.size.height = height
         if panel.isVisible {
-            frame.origin.y = desiredY
-            frame.size.height = height
-            panel.setFrame(frame, display: true)
+            if shrinking {
+                // Growth tracks SwiftUI's expand animation frame-by-frame via
+                // autolayout, but nothing shrinks a window for us — a bare
+                // setFrame lands as one visible jump. Animate the shrink so
+                // collapse feels like expand; retargeting mid-animation is fine.
+                NSAnimationContext.runAnimationGroup { context in
+                    context.duration = 0.22
+                    context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                    context.allowsImplicitAnimation = true
+                    panel.animator().setFrame(frame, display: true)
+                }
+            } else {
+                panel.setFrame(frame, display: true)
+            }
         } else {
             panel.setContentSize(NSSize(width: Self.panelWidth, height: height))
         }

@@ -6,7 +6,7 @@ TokenOut is a native macOS menu bar utility created by Levan Parastashvili. It c
 
 - Website: https://tokenout.scrubmac.app
 - Source repository: https://github.com/SyntaxFear/TokenOut
-- Latest notarized DMG: https://github.com/SyntaxFear/TokenOut/releases/latest/download/TokenOut.dmg
+- Latest notarized DMG: https://tokenout.scrubmac.app/download
 - Release history: https://tokenout.scrubmac.app/releases
 - Privacy policy: https://tokenout.scrubmac.app/privacy
 - Sparkle appcast: https://tokenout.scrubmac.app/appcast.xml
@@ -17,7 +17,7 @@ TokenOut can show provider limit windows, used or remaining percentages, refill 
 
 ## Privacy and data handling
 
-TokenOut reads existing local files and sessions created by supported command-line tools. When a provider offers a live quota endpoint, TokenOut contacts only that provider's official service using the existing local session. TokenOut has no product account, analytics SDK, advertising SDK, telemetry service, or cloud-sync backend. Preferences and derived history remain on the user's Mac.
+TokenOut reads existing local files and sessions created by supported command-line tools. When a provider offers a live quota endpoint, TokenOut contacts only that provider's official service using the existing local session. Preferences and derived provider history remain on the user's Mac. TokenOut has no product account, advertising SDK, provider-usage telemetry, or cloud-sync backend. It sends one anonymous first-launch event containing only app version, build, macOS version, and processor architecture.
 
 ## Platform and distribution
 

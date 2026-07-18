@@ -83,7 +83,7 @@ export default function ReleasesPage() {
               <strong>TokenOut {siteConfig.latestVersion}</strong>
               <small>{siteConfig.minimumOS} · Apple silicon and Intel</small>
             </div>
-            <a className="button" href={siteConfig.downloadURL}>
+            <a className="button" href={`${siteConfig.downloadURL}?placement=releases-hero`}>
               <ArrowDown aria-hidden="true" />
               Download DMG
             </a>
