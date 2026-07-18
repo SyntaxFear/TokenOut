@@ -9,5 +9,10 @@ Brand/**/*.json
 Brand/masters/
 Brand/previews/
 Brand/marketing/hero-product.png
+Brand/marketing/azure-dmg/
+Brand/marketing/azure-dmg-liquid/
 releases/old_updates/
+releases/*.dmg
 .codex/
+.vercel/
+website/tsconfig.tsbuildinfo

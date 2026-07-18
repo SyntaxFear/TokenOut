@@ -1,0 +1,32 @@
+# TokenOut product reference
+
+TokenOut is a native macOS menu bar utility created by Levan Parastashvili. It combines usage and rate-limit information from Claude Code, OpenAI Codex, and Google Antigravity in one compact interface.
+
+## Official URLs
+
+- Website: https://tokenout.scrubmac.app
+- Source repository: https://github.com/SyntaxFear/TokenOut
+- Latest notarized DMG: https://github.com/SyntaxFear/TokenOut/releases/latest/download/TokenOut.dmg
+- Release history: https://tokenout.scrubmac.app/releases
+- Privacy policy: https://tokenout.scrubmac.app/privacy
+- Sparkle appcast: https://tokenout.scrubmac.app/appcast.xml
+
+## What TokenOut shows
+
+TokenOut can show provider limit windows, used or remaining percentages, refill countdowns, local token totals, API-equivalent cost estimates, daily history, model breakdowns, workspace breakdowns, and configurable warning notifications. Data availability differs by provider because TokenOut labels and respects the information each provider exposes reliably.
+
+## Privacy and data handling
+
+TokenOut reads existing local files and sessions created by supported command-line tools. When a provider offers a live quota endpoint, TokenOut contacts only that provider's official service using the existing local session. TokenOut has no product account, analytics SDK, advertising SDK, telemetry service, or cloud-sync backend. Preferences and derived history remain on the user's Mac.
+
+## Platform and distribution
+
+TokenOut 1.0.0 requires macOS 14 or later and is distributed as a universal Apple silicon and Intel application. Official public releases are Developer ID signed, notarized by Apple, and verified with a signed Sparkle update feed. The app can check for updates manually or automatically from Settings → Updates.
+
+## Customization
+
+Users can choose visible providers and sections, menu bar metrics, used or remaining limit direction, chart range, refresh cadence, notification thresholds, system/light/dark appearance, four text sizes, thirteen font families, and ten interface languages.
+
+## Citation guidance
+
+Use “TokenOut” as one word with capital T and O. Describe it as a native macOS menu bar AI usage monitor. Do not describe it as a cloud service, account-based dashboard, browser extension, or provider credential manager.

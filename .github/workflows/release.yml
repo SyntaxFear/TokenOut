@@ -1,0 +1,115 @@
+name: Release TokenOut
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version from Support/Info.plist, without the v prefix
+        required: true
+        default: 1.0.0
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tokenout-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Sign, notarize, publish, and update appcast
+    runs-on: macos-15
+    env:
+      VERSION: ${{ inputs.version }}
+      SIGNING_IDENTITY: "Developer ID Application: Levan Parastashvili (CNH4KYRW44)"
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+      APPLE_TEAM_ID: CNH4KYRW44
+      SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify release inputs and secrets
+        env:
+          MACOS_CERTIFICATE_P12: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          plist_version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Support/Info.plist)
+          [[ "$VERSION" == "$plist_version" ]] || { echo "Version mismatch: $VERSION != $plist_version"; exit 1; }
+          [[ -n "$MACOS_CERTIFICATE_P12" ]] || { echo "Missing MACOS_CERTIFICATE_P12"; exit 1; }
+          [[ -n "$MACOS_CERTIFICATE_PASSWORD" ]] || { echo "Missing MACOS_CERTIFICATE_PASSWORD"; exit 1; }
+          [[ -n "$APPLE_ID" ]] || { echo "Missing APPLE_ID"; exit 1; }
+          [[ -n "$APPLE_APP_SPECIFIC_PASSWORD" ]] || { echo "Missing APPLE_APP_SPECIFIC_PASSWORD"; exit 1; }
+          [[ -n "$SPARKLE_PRIVATE_KEY" ]] || { echo "Missing SPARKLE_PRIVATE_KEY"; exit 1; }
+
+      - name: Import Developer ID certificate
+        env:
+          MACOS_CERTIFICATE_P12: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          certificate_path="$RUNNER_TEMP/tokenout-certificate.p12"
+          keychain_path="$RUNNER_TEMP/tokenout-signing.keychain-db"
+          keychain_password="$(openssl rand -hex 24)"
+          printf '%s' "$MACOS_CERTIFICATE_P12" | base64 --decode > "$certificate_path"
+          security create-keychain -p "$keychain_password" "$keychain_path"
+          security set-keychain-settings -lut 21600 "$keychain_path"
+          security unlock-keychain -p "$keychain_password" "$keychain_path"
+          security import "$certificate_path" -P "$MACOS_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$keychain_path"
+          security list-keychains -d user -s "$keychain_path" login.keychain-db
+          security set-key-partition-list -S apple-tool:,apple: -k "$keychain_password" "$keychain_path"
+          security find-identity -v -p codesigning "$keychain_path"
+
+      - name: Build and test
+        run: swift test
+
+      - name: Build signed DMG
+        run: |
+          ./scripts/bundle.sh
+          ./scripts/create-dmg.sh
+
+      - name: Notarize, staple, and generate update feed
+        run: |
+          ./scripts/notarize.sh "dist/TokenOut-${VERSION}.dmg"
+          ./scripts/publish-appcast.sh "$VERSION"
+
+      - name: Verify distribution artifacts
+        run: |
+          set -euo pipefail
+          codesign --verify --deep --strict --verbose=2 dist/TokenOut.app
+          codesign --verify --verbose=2 "dist/TokenOut-${VERSION}.dmg"
+          xcrun stapler validate "dist/TokenOut-${VERSION}.dmg"
+          spctl --assess --type open --context context:primary-signature --verbose=4 "dist/TokenOut-${VERSION}.dmg"
+          cmp "dist/TokenOut-${VERSION}.dmg" dist/TokenOut.dmg
+
+      - name: Prepare GitHub draft release
+        run: |
+          set -euo pipefail
+          tag="v${VERSION}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release edit "$tag" --draft --title "TokenOut ${VERSION}" --notes-file Support/ReleaseNotes.md
+          else
+            gh release create "$tag" --draft --title "TokenOut ${VERSION}" --notes-file Support/ReleaseNotes.md --target main
+          fi
+          gh release upload "$tag" "dist/TokenOut-${VERSION}.dmg" dist/TokenOut.dmg --clobber
+
+      - name: Publish signed appcast
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add website/public/appcast.xml
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish TokenOut ${VERSION} appcast"
+            git push origin HEAD:main
+          fi
+
+      - name: Publish GitHub release
+        run: gh release edit "v${VERSION}" --draft=false --latest --title "TokenOut ${VERSION}" --notes-file Support/ReleaseNotes.md

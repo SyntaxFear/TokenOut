@@ -1,11 +1,11 @@
 #!/usr/bin/env swift
-// Generates the production BurnBar icon from the Azure-created brand master.
+// Generates the production TokenOut icon from the Azure-created brand master.
 // Run from repo root: swift scripts/makeicon.swift
 
 import AppKit
 
 let fileManager = FileManager.default
-let symbolURL = URL(fileURLWithPath: "Brand/exports/burnbar-symbol.png")
+let symbolURL = URL(fileURLWithPath: "Brand/exports/tokenout-symbol.png")
 guard let symbol = NSImage(contentsOf: symbolURL) else {
     fatalError("Missing brand symbol at \(symbolURL.path). Generate Brand assets first.")
 }
@@ -15,8 +15,8 @@ func drawIcon(canvas: CGFloat) -> NSImage {
         let s = canvas / 1024
         NSGraphicsContext.current?.imageInterpolation = .high
 
-        // Standard macOS optical icon grid: a deep, neutral squircle lets the ember
-        // mark remain legible in both light and dark system appearances.
+        // Standard macOS optical icon grid: a deep, neutral squircle keeps the
+        // TokenOut mark legible in both light and dark system appearances.
         let backgroundRect = NSRect(x: 100 * s, y: 100 * s, width: 824 * s, height: 824 * s)
         let background = NSBezierPath(
             roundedRect: backgroundRect,
@@ -40,9 +40,8 @@ func drawIcon(canvas: CGFloat) -> NSImage {
         background.lineWidth = 2 * s
         background.stroke()
 
-        // Preserve the generated mark's horizontal character instead of forcing it
-        // into a generic centered flame. The slight upward lift optically balances
-        // the flame's heavier lower-left mass.
+        // Preserve the generated mark's proportions and use a slight upward lift
+        // to optically balance the ring and escaping arrow.
         let symbolWidth = 700 * s
         let symbolHeight = symbolWidth * symbol.size.height / symbol.size.width
         let symbolRect = NSRect(
@@ -95,7 +94,7 @@ try fileManager.createDirectory(at: iconsetURL, withIntermediateDirectories: tru
 
 let master = drawIcon(canvas: 1024)
 if let masterData = pngData(master, pixels: 1024) {
-    try masterData.write(to: exportsURL.appending(path: "burnbar-app-icon.png"))
+    try masterData.write(to: exportsURL.appending(path: "tokenout-app-icon.png"))
 }
 
 for size in [16, 32, 128, 256, 512] {
@@ -115,5 +114,5 @@ task.waitUntilExit()
 try? fileManager.removeItem(at: iconsetURL)
 
 print(task.terminationStatus == 0
-      ? "Support/AppIcon.icns and Brand/exports/burnbar-app-icon.png written"
+      ? "Support/AppIcon.icns and Brand/exports/tokenout-app-icon.png written"
       : "iconutil failed")

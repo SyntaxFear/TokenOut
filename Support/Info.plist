@@ -5,17 +5,17 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
-	<string>BurnBar</string>
+	<string>TokenOut</string>
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
-	<string>dev.burnbar.mac</string>
+	<string>dev.tokenout.mac</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>BurnBar</string>
+	<string>TokenOut</string>
 	<key>CFBundleDisplayName</key>
-	<string>BurnBar</string>
+	<string>TokenOut</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -39,7 +39,7 @@
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://burnbar.scrubmac.app/appcast.xml</string>
+	<string>https://tokenout.scrubmac.app/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>MApM9ghubQs+BiUEK38K6oPaAh8EaEONFmYPiyhcsIE=</string>
 	<key>SURequireSignedFeed</key>

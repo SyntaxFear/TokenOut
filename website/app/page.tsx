@@ -3,281 +3,386 @@ import Link from "next/link";
 import {
   ArrowDown,
   ArrowUpRight,
-  BellSimple,
-  ChartLineUp,
+  BellRinging,
+  ChartBar,
   CheckCircle,
   ClockCounterClockwise,
   Command,
-  Gauge,
   GithubLogo,
+  GlobeSimple,
   LockKey,
-  ShieldCheck,
-  Sparkle,
+  PaintBrush,
+  ShareNetwork,
+  SlidersHorizontal,
 } from "@phosphor-icons/react/dist/ssr";
 import { HeroVisual, Reveal } from "@/components/reveal";
+import { latestRelease, siteConfig } from "@/lib/site";
 
-const downloadURL = "https://github.com/SyntaxFear/BurnBar/releases/latest/download/BurnBar.dmg";
+const downloadURL = siteConfig.downloadURL;
+const repositoryURL = siteConfig.repositoryURL;
 
-const softwareSchema = {
+const structuredData = {
   "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "BurnBar",
-  applicationCategory: "UtilitiesApplication",
-  operatingSystem: "macOS 14 or later",
-  description: "A native menu bar app for tracking Claude Code, Codex, and Antigravity usage.",
-  downloadUrl: downloadURL,
-  softwareVersion: "1.0.0",
-  author: { "@type": "Person", name: "Levan Parastashvili" },
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${siteConfig.siteURL}/#website`,
+      url: siteConfig.siteURL,
+      name: siteConfig.name,
+      description: siteConfig.description,
+      inLanguage: "en",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${siteConfig.siteURL}/#software`,
+      name: siteConfig.name,
+      alternateName: "TokenOut for macOS",
+      applicationCategory: "UtilitiesApplication",
+      applicationSubCategory: "Developer tools",
+      operatingSystem: siteConfig.minimumOS,
+      description: siteConfig.description,
+      url: siteConfig.siteURL,
+      downloadUrl: downloadURL,
+      installUrl: downloadURL,
+      codeRepository: repositoryURL,
+      releaseNotes: `${siteConfig.siteURL}/releases`,
+      softwareVersion: latestRelease.version,
+      datePublished: latestRelease.date,
+      dateModified: latestRelease.date,
+      fileFormat: "application/x-apple-diskimage",
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD", availability: "https://schema.org/InStock" },
+      screenshot: [
+        `${siteConfig.siteURL}/assets/app-popover-real.png`,
+        `${siteConfig.siteURL}/assets/settings-display-real.png`,
+      ],
+      featureList: [
+        "Claude Code usage limits",
+        "OpenAI Codex usage limits",
+        "Google Antigravity local activity",
+        "Token and cost history",
+        "Native macOS menu bar interface",
+        "Signed automatic updates",
+      ],
+      author: { "@type": "Person", name: "Levan Parastashvili", url: repositoryURL },
+    },
+  ],
 };
+
+const providers = [
+  {
+    name: "Claude Code",
+    logo: "/assets/provider-claude.png",
+    summary: "Live 5-hour and weekly limits, transcript totals, model mix, and cost estimates.",
+  },
+  {
+    name: "Codex",
+    logo: "/assets/provider-codex.png",
+    summary: "Primary and secondary rate limits, rollout history, plan details, and workspace breakdowns.",
+  },
+  {
+    name: "Antigravity",
+    logo: "/assets/provider-antigravity.png",
+    summary: "Local sessions, turns, daily activity, and estimated tokens when quota data is unavailable.",
+  },
+];
 
 export default function Home() {
   return (
-    <main>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
-      />
+    <>
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
 
-      <header className="site-nav">
-        <Link className="brand" href="/" aria-label="BurnBar home">
-          <Image src="/assets/burnbar-symbol.png" alt="" width={34} height={22} priority />
-          <span>BurnBar</span>
+      <header className="site-nav site-shell">
+        <Link className="brand" href="/" aria-label="TokenOut home">
+          <Image src="/assets/tokenout-symbol.png" alt="" width={32} height={32} priority />
+          <span>TokenOut</span>
         </Link>
+
         <nav aria-label="Primary navigation">
-          <a href="#features">Features</a>
+          <a href="#product">Product</a>
+          <a href="#details">Details</a>
+          <Link href="/releases">Releases</Link>
           <Link href="/privacy">Privacy</Link>
-          <a href="https://github.com/SyntaxFear/BurnBar" target="_blank" rel="noreferrer">
+          <a href={repositoryURL} target="_blank" rel="noreferrer">
             GitHub
           </a>
         </nav>
-        <a className="button button-small" href={downloadURL}>
+
+        <a className="button button-compact" href={downloadURL}>
           <ArrowDown aria-hidden="true" />
-          Download for Mac
+          <span className="download-long">Download for Mac</span>
+          <span className="download-short">Download</span>
         </a>
       </header>
 
-      <section className="hero shell">
-        <Reveal className="hero-copy">
-          <p className="eyebrow">Native macOS usage monitor</p>
-          <h1>Know the burn before limits hit.</h1>
-          <p className="hero-subtitle">
-            See Claude Code, Codex, and Antigravity usage without leaving the menu bar.
-          </p>
-          <div className="hero-actions">
+      <main id="main-content">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+
+        <section className="hero site-shell">
+          <Reveal className="hero-copy">
+            <p className="eyebrow">Native macOS usage monitor</p>
+            <h1>Every AI limit. One glance.</h1>
+            <p className="hero-subtitle">
+              Track Claude Code, Codex, and Antigravity usage, reset times, tokens, and cost from your menu bar.
+            </p>
+            <div className="hero-actions">
+              <a className="button" href={downloadURL}>
+                <ArrowDown aria-hidden="true" />
+                Download v{latestRelease.version}
+              </a>
+              <a className="text-link" href={repositoryURL} target="_blank" rel="noreferrer">
+                <GithubLogo aria-hidden="true" />
+                View on GitHub
+              </a>
+            </div>
+          </Reveal>
+
+          <HeroVisual>
+            <div className="hero-frame">
+              <Image
+                src="/assets/hero-product.png"
+                alt="TokenOut app icon beside the real macOS usage popover"
+                width={3072}
+                height={2048}
+                priority
+                sizes="(max-width: 960px) 100vw, 58vw"
+              />
+            </div>
+          </HeroVisual>
+        </section>
+
+        <section className="compatibility-bar site-shell" aria-label="Compatibility">
+          <span>macOS 14 or later</span>
+          <span>Apple silicon and Intel</span>
+          <span>No TokenOut account</span>
+          <span>Open source</span>
+        </section>
+
+        <section className="provider-section site-shell" aria-labelledby="providers-heading">
+          <Reveal className="provider-intro">
+            <h2 id="providers-heading">One place for the tools doing the work.</h2>
+            <p>TokenOut reads each installed tool in the way that tool actually supports.</p>
+          </Reveal>
+
+          <div className="provider-list">
+            {providers.map((provider, index) => (
+              <Reveal className="provider-row" delay={index * 0.05} key={provider.name}>
+                <span className="provider-logo">
+                  <Image src={provider.logo} alt={`${provider.name} logo`} width={256} height={256} />
+                </span>
+                <div>
+                  <h3>{provider.name}</h3>
+                  <p>{provider.summary}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        <section className="product-section site-shell" id="product">
+          <Reveal className="section-heading">
+            <h2>See the pressure before the cutoff.</h2>
+            <p>
+              The popover keeps live limits, pace, refill times, token totals, cost estimates, and recent history in one compact view.
+            </p>
+          </Reveal>
+
+          <div className="product-stage">
+            <Reveal className="popover-capture">
+              <Image
+                src="/assets/app-popover-real.png"
+                alt="TokenOut overview showing Claude Code and Codex limits, totals, breakdowns, and daily charts"
+                width={340}
+                height={1151}
+                sizes="(max-width: 760px) 88vw, 340px"
+              />
+              <p>Actual app interface with sample usage data.</p>
+            </Reveal>
+
+            <div className="product-notes">
+              <Reveal className="product-note">
+                <SlidersHorizontal aria-hidden="true" />
+                <div>
+                  <h3>Used or remaining</h3>
+                  <p>Choose the direction that makes limits easiest for you to read.</p>
+                </div>
+              </Reveal>
+              <Reveal className="product-note" delay={0.05}>
+                <ChartBar aria-hidden="true" />
+                <div>
+                  <h3>7 to 90 days of history</h3>
+                  <p>Plot tokens or API-equivalent cost and spot the days your pace changed.</p>
+                </div>
+              </Reveal>
+              <Reveal className="product-note" delay={0.1}>
+                <BellRinging aria-hidden="true" />
+                <div>
+                  <h3>Warnings that follow the cycle</h3>
+                  <p>Set warning and critical thresholds, plus an alert when capacity refills.</p>
+                </div>
+              </Reveal>
+              <Reveal className="product-note" delay={0.15}>
+                <ClockCounterClockwise aria-hidden="true" />
+                <div>
+                  <h3>Refresh without babysitting</h3>
+                  <p>TokenOut speeds up near higher usage and backs off after provider failures.</p>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        <section className="details-section site-shell" id="details">
+          <Reveal className="section-heading details-heading">
+            <h2>More context, less checking.</h2>
+            <p>Go from a quick limit check to a useful record of how your AI coding time is being spent.</p>
+          </Reveal>
+
+          <div className="details-grid">
+            <Reveal className="detail-card settings-card">
+              <div className="detail-card-copy">
+                <PaintBrush aria-hidden="true" />
+                <h3>Show exactly what matters.</h3>
+                <p>Pick the menu bar metric, visible sections, chart range, and whether limits fill up or drain down.</p>
+              </div>
+              <Image
+                src="/assets/settings-display-real.png"
+                alt="TokenOut display settings for menu bar metrics, limit direction, charts, and breakdowns"
+                width={680}
+                height={552}
+                sizes="(max-width: 760px) 100vw, 62vw"
+              />
+            </Reveal>
+
+            <Reveal className="detail-card share-card" delay={0.05}>
+              <div className="detail-card-copy">
+                <ShareNetwork aria-hidden="true" />
+                <h3>Share a clean usage snapshot.</h3>
+                <p>Export today, this week, or the last 30 days as a ready-to-post image.</p>
+              </div>
+              <Image
+                src="/assets/share-card.png"
+                alt="TokenOut share card with weekly tokens, cost, providers, models, and daily activity"
+                width={960}
+                height={1068}
+                sizes="(max-width: 760px) 90vw, 34vw"
+              />
+            </Reveal>
+
+            <Reveal className="detail-card language-card" delay={0.08}>
+              <div className="detail-card-copy">
+                <GlobeSimple aria-hidden="true" />
+                <h3>Built to fit your Mac.</h3>
+                <p>System, light, or dark appearance. Four text sizes. Thirteen font choices. Ten app languages.</p>
+              </div>
+              <div className="language-sample" aria-label="Supported TokenOut languages">
+                <span>English</span>
+                <span>Español</span>
+                <span>中文</span>
+                <span>हिन्दी</span>
+                <span>العربية</span>
+                <span>Português</span>
+                <span>Русский</span>
+                <span>日本語</span>
+                <span>Deutsch</span>
+                <span>Français</span>
+              </div>
+            </Reveal>
+
+            <Reveal className="detail-card native-card" delay={0.12}>
+              <div className="native-mark">
+                <Image src="/assets/tokenout-app-icon.png" alt="TokenOut app icon" width={1024} height={1024} />
+              </div>
+              <div className="detail-card-copy">
+                <Command aria-hidden="true" />
+                <h3>Native all the way through.</h3>
+                <p>SwiftUI, no Dock icon, launch at login, a universal binary, and signed Sparkle updates.</p>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        <section className="privacy-section site-shell">
+          <Reveal className="privacy-visual">
+            <Image src="/assets/tokenout-symbol.png" alt="TokenOut mark" width={1024} height={1024} />
+            <span>Local by default</span>
+          </Reveal>
+
+          <Reveal className="privacy-copy" delay={0.06}>
+            <LockKey aria-hidden="true" />
+            <h2>Your usage stays on your Mac.</h2>
+            <p>
+              TokenOut reads local tool data and contacts only each provider&apos;s official service when a live quota refresh is available.
+            </p>
+            <div className="privacy-points">
+              <span><CheckCircle aria-hidden="true" /> No analytics or telemetry</span>
+              <span><CheckCircle aria-hidden="true" /> No cloud sync</span>
+              <span><CheckCircle aria-hidden="true" /> No separate account</span>
+            </div>
+            <Link className="text-link" href="/privacy">
+              Read the privacy details
+              <ArrowUpRight aria-hidden="true" />
+            </Link>
+          </Reveal>
+        </section>
+
+        <section className="answers-section site-shell" aria-labelledby="answers-heading">
+          <Reveal className="answers-title">
+            <h2 id="answers-heading">The practical questions.</h2>
+          </Reveal>
+
+          <div className="answer-grid">
+            <Reveal>
+              <h3>Does it need my provider password?</h3>
+              <p>No. TokenOut uses the existing local session created by each installed tool.</p>
+            </Reveal>
+            <Reveal delay={0.04}>
+              <h3>Why does each provider show different data?</h3>
+              <p>TokenOut shows only what each provider exposes reliably, then labels unavailable values clearly.</p>
+            </Reveal>
+            <Reveal delay={0.08}>
+              <h3>Can I choose what appears?</h3>
+              <p>Yes. Providers, metrics, sections, charts, breakdowns, themes, fonts, languages, refresh, and alerts are configurable.</p>
+            </Reveal>
+            <Reveal delay={0.12}>
+              <h3>How are updates protected?</h3>
+              <p>Public releases are notarized by Apple and verified again with TokenOut&apos;s Sparkle signing key.</p>
+            </Reveal>
+          </div>
+        </section>
+
+        <section className="download-section site-shell">
+          <Reveal className="download-panel">
+            <div>
+              <h2>Keep every limit within reach.</h2>
+              <p>Install TokenOut, open the menu bar, and stop checking three tools separately.</p>
+            </div>
             <a className="button" href={downloadURL}>
               <ArrowDown aria-hidden="true" />
               Download for Mac
             </a>
-            <a className="text-link" href="https://github.com/SyntaxFear/BurnBar" target="_blank" rel="noreferrer">
-              <GithubLogo aria-hidden="true" />
-              View source
-            </a>
-          </div>
-          <p className="requirements">macOS 14+, Apple silicon and Intel, no account</p>
-        </Reveal>
-
-        <HeroVisual>
-          <div className="hero-image-frame">
-            <Image
-              src="/assets/hero-product.png"
-              alt="BurnBar app icon beside its macOS menu bar usage popover"
-              width={1536}
-              height={1024}
-              priority
-              sizes="(max-width: 900px) 100vw, 55vw"
-            />
-          </div>
-          <p className="image-caption">Sample usage data shown.</p>
-        </HeroVisual>
-      </section>
-
-      <section className="provider-rail shell" aria-label="Supported tools">
-        <span>Works with</span>
-        <strong>Claude Code</strong>
-        <strong>Codex</strong>
-        <strong>Antigravity</strong>
-      </section>
-
-      <section className="statement shell" id="features">
-        <Reveal>
-          <h2>One calm place for every limit window.</h2>
-          <p>
-            BurnBar turns scattered provider data into a compact view of usage, reset times,
-            tokens, cost estimates, and recent pace.
-          </p>
-        </Reveal>
-        <Reveal className="statement-metrics" delay={0.08}>
-          <div>
-            <span>3</span>
-            <p>coding tools</p>
-          </div>
-          <div>
-            <span>1</span>
-            <p>menu bar glance</p>
-          </div>
-          <div>
-            <span>0</span>
-            <p>BurnBar accounts</p>
-          </div>
-        </Reveal>
-      </section>
-
-      <section className="feature-grid shell">
-        <Reveal className="feature feature-wide feature-usage">
-          <Gauge aria-hidden="true" />
-          <h3>See what is running hot</h3>
-          <p>Used or remaining percentages stay consistent across hourly, weekly, and monthly windows.</p>
-          <div className="meter-demo" aria-label="Example usage at 72 percent">
-            <span style={{ width: "72%" }} />
-          </div>
-          <small>72% used</small>
-        </Reveal>
-
-        <Reveal className="feature feature-visual" delay={0.05}>
-          <Image src="/assets/burnbar-app-icon.png" alt="BurnBar app icon" width={1024} height={1024} />
-        </Reveal>
-
-        <Reveal className="feature" delay={0.08}>
-          <ChartLineUp aria-hidden="true" />
-          <h3>Track pace, not only totals</h3>
-          <p>Daily charts and local history show when usage accelerates and when a limit may be reached.</p>
-        </Reveal>
-
-        <Reveal className="feature feature-accent" delay={0.12}>
-          <BellSimple aria-hidden="true" />
-          <h3>Get useful warnings</h3>
-          <p>Choose warning and critical thresholds, plus an optional notification when capacity refills.</p>
-        </Reveal>
-      </section>
-
-      <section className="product-gallery shell">
-        <Reveal className="gallery-copy">
-          <h2>The real app, down to the details.</h2>
-          <p>
-            A full-height overview when every provider is visible, plus precise controls for what BurnBar shows and how updates run.
-          </p>
-          <small>Actual BurnBar interface with sample usage data.</small>
-        </Reveal>
-        <div className="gallery-grid">
-          <Reveal className="screenshot screenshot-tall">
-            <Image
-              src="/assets/app-popover-real.png"
-              alt="BurnBar full-height multi-provider popover with a thin overlay scrollbar"
-              width={340}
-              height={1415}
-              sizes="(max-width: 720px) 84vw, 340px"
-            />
           </Reveal>
-          <div className="settings-stack">
-            <Reveal className="screenshot" delay={0.05}>
-              <Image
-                src="/assets/settings-display-real.png"
-                alt="BurnBar Display settings with controls for menu bar metrics and popover sections"
-                width={680}
-                height={552}
-                sizes="(max-width: 960px) 100vw, 680px"
-              />
-            </Reveal>
-            <Reveal className="screenshot" delay={0.1}>
-              <Image
-                src="/assets/settings-updates-real.png"
-                alt="BurnBar automatic update settings powered by Sparkle"
-                width={680}
-                height={552}
-                sizes="(max-width: 960px) 100vw, 680px"
-              />
-            </Reveal>
-          </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      <section className="privacy-story shell">
-        <Reveal className="privacy-mark">
-          <Image src="/assets/burnbar-symbol.png" alt="BurnBar flame meter symbol" width={665} height={401} />
-        </Reveal>
-        <Reveal className="privacy-copy" delay={0.08}>
-          <LockKey aria-hidden="true" />
-          <h2>Your usage stays on your Mac.</h2>
-          <p>
-            BurnBar reads local tool data and contacts only each provider&apos;s official service when a live quota refresh is needed.
-          </p>
-          <ul>
-            <li><CheckCircle aria-hidden="true" /> No analytics or advertising SDKs</li>
-            <li><CheckCircle aria-hidden="true" /> No BurnBar account or cloud sync</li>
-            <li><CheckCircle aria-hidden="true" /> Open source and inspectable</li>
-          </ul>
-          <Link className="text-link" href="/privacy">
-            Read the privacy details
-            <ArrowUpRight aria-hidden="true" />
-          </Link>
-        </Reveal>
-      </section>
-
-      <section className="detail-band shell">
-        <Reveal>
-          <Command aria-hidden="true" />
-          <h3>Native by design</h3>
-          <p>SwiftUI, fast launch, small footprint, and a real menu bar workflow.</p>
-        </Reveal>
-        <Reveal delay={0.05}>
-          <ClockCounterClockwise aria-hidden="true" />
-          <h3>Automatic updates</h3>
-          <p>Signed Sparkle updates keep BurnBar current without a manual reinstall.</p>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <ShieldCheck aria-hidden="true" />
-          <h3>Signed for macOS</h3>
-          <p>Developer ID signing and Apple notarization protect each public release.</p>
-        </Reveal>
-      </section>
-
-      <section className="faq shell">
-        <Reveal>
-          <h2>Questions, answered.</h2>
-        </Reveal>
-        <div className="faq-list">
-          <details>
-            <summary>Does BurnBar need my provider password?</summary>
-            <p>No. It uses each installed tool&apos;s existing local session and never asks for your password.</p>
-          </details>
-          <details>
-            <summary>Why can Antigravity show less data?</summary>
-            <p>Antigravity does not expose every quota locally. BurnBar shows verified local activity and labels unavailable limits clearly.</p>
-          </details>
-          <details>
-            <summary>Can I choose what appears?</summary>
-            <p>Yes. Providers, detail sections, charts, breakdowns, refresh cadence, menu bar style, and alerts are configurable.</p>
-          </details>
-          <details>
-            <summary>How do updates work?</summary>
-            <p>BurnBar checks a signed Sparkle feed and verifies both the update archive and the macOS code signature.</p>
-          </details>
-        </div>
-      </section>
-
-      <section className="final-cta shell">
-        <Reveal>
-          <Sparkle aria-hidden="true" />
-          <h2>Keep the burn visible.</h2>
-          <p>Install BurnBar and make your next limit predictable.</p>
-          <a className="button" href={downloadURL}>
-            <ArrowDown aria-hidden="true" />
-            Download for Mac
-          </a>
-        </Reveal>
-      </section>
-
-      <footer className="site-footer shell">
-        <Link className="brand" href="/">
-          <Image src="/assets/burnbar-symbol.png" alt="" width={30} height={20} />
-          <span>BurnBar</span>
+      <footer className="site-footer site-shell">
+        <Link className="brand" href="/" aria-label="TokenOut home">
+          <Image src="/assets/tokenout-symbol.png" alt="" width={28} height={28} />
+          <span>TokenOut</span>
         </Link>
-        <p>Native AI usage monitoring for macOS.</p>
+        <p>Private AI usage monitoring for macOS.</p>
         <div>
           <Link href="/privacy">Privacy</Link>
-          <a href="https://github.com/SyntaxFear/BurnBar">GitHub</a>
+          <Link href="/releases">Releases</Link>
+          <a href={repositoryURL}>GitHub</a>
         </div>
+        <small>© 2026 Levan Parastashvili</small>
       </footer>
-    </main>
+    </>
   );
 }

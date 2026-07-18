@@ -1,8 +1,8 @@
-# BurnBar
+# TokenOut
 
-**Know your AI burn before limits hit.** BurnBar is a private native macOS menu bar app for tracking usage, rate-limit windows, tokens, and API-equivalent cost across AI coding tools.
+**Every AI limit. One glance.** TokenOut is a private native macOS menu bar app for tracking usage, rate-limit windows, tokens, and API-equivalent cost across AI coding tools.
 
-[Website](https://burnbar.scrubmac.app) | [Download](https://github.com/SyntaxFear/BurnBar/releases/latest/download/BurnBar.dmg) | [Privacy](https://burnbar.scrubmac.app/privacy)
+[Website](https://tokenout.scrubmac.app) | [Download](https://github.com/SyntaxFear/TokenOut/releases/latest/download/TokenOut.dmg) | [Releases](https://tokenout.scrubmac.app/releases) | [Privacy](https://tokenout.scrubmac.app/privacy)
 
 ## Supported providers
 
@@ -18,9 +18,9 @@ Currency precision is visually quieter throughout the app: cents in values such 
 
 ## Privacy
 
-BurnBar reads each tool's existing local state and contacts only that provider's official service when a live quota refresh is available. It does not include analytics, telemetry, advertising SDKs, a BurnBar account, or cloud sync.
+TokenOut reads each tool's existing local state and contacts only that provider's official service when a live quota refresh is available. It does not include analytics, telemetry, advertising SDKs, a TokenOut account, or cloud sync.
 
-Claude Code credentials remain in Claude Code's original Keychain item. When Claude rotates its OAuth refresh token, BurnBar persists the rotated credential back to that item so both apps remain signed in. macOS may show a Keychain access prompt on first use.
+Claude Code credentials remain in Claude Code's original Keychain item. When Claude rotates its OAuth refresh token, TokenOut persists the rotated credential back to that item so both apps remain signed in. macOS may show a Keychain access prompt on first use.
 
 ## Requirements
 
@@ -45,15 +45,31 @@ SIGNING_IDENTITY='Developer ID Application: Levan Parastashvili (CNH4KYRW44)' ./
 Notarization uses a `notarytool` Keychain profile:
 
 ```sh
-xcrun notarytool store-credentials BurnBarNotary
-NOTARY_PROFILE=BurnBarNotary ./scripts/notarize.sh
+xcrun notarytool store-credentials TokenOutNotary
+NOTARY_PROFILE=TokenOutNotary ./scripts/notarize.sh
 ./scripts/publish-appcast.sh 1.0.0
 ```
+
+Or run the complete local release pipeline:
+
+```sh
+./scripts/release.sh 1.0.0
+```
+
+The manual GitHub Actions release workflow requires these repository secrets:
+
+- `MACOS_CERTIFICATE_P12`: base64-encoded Developer ID Application `.p12`.
+- `MACOS_CERTIFICATE_PASSWORD`: password used when exporting that certificate.
+- `APPLE_ID`: Apple developer account email used for notarization.
+- `APPLE_APP_SPECIFIC_PASSWORD`: app-specific password for `notarytool`.
+- `SPARKLE_PRIVATE_KEY`: exported Sparkle EdDSA private key.
+
+The workflow tests the app, builds a universal Developer ID-signed DMG, notarizes and staples it, generates the signed appcast, updates the website feed, uploads both versioned and stable download filenames, and publishes the GitHub release. Release history is maintained in [CHANGELOG.md](CHANGELOG.md).
 
 Developer utilities:
 
 ```sh
-swift run BurnBarProbe all
+swift run TokenOutProbe all
 swift scripts/makeicon.swift
 ```
 
@@ -68,14 +84,14 @@ npm run dev
 npm run build
 ```
 
-It includes metadata, structured data, Open Graph artwork, `robots.txt`, `sitemap.xml`, `llms.txt`, a privacy page, and the signed Sparkle appcast endpoint.
+It includes canonical metadata, SoftwareApplication structured data, Open Graph artwork, branded icons and manifest, `robots.txt`, `sitemap.xml`, `llms.txt`, `llms-full.txt`, privacy and release-history pages, and the signed Sparkle appcast endpoint.
 
 ## Architecture
 
 The Swift package has three primary targets:
 
-- `BurnBarCore`: normalized models, formatting, pricing, history, store, and refresh policy.
-- `BurnBarProviders`: provider implementations for Claude Code, Codex, and Antigravity.
-- `BurnBar`: the SwiftUI `MenuBarExtra` application, settings, notifications, and Sparkle updater.
+- `TokenOutCore`: normalized models, formatting, pricing, history, store, and refresh policy.
+- `TokenOutProviders`: provider implementations for Claude Code, Codex, and Antigravity.
+- `TokenOut`: the SwiftUI `MenuBarExtra` application, settings, notifications, and Sparkle updater.
 
-Design and provider notes are available in [the product spec](docs/superpowers/specs/2026-07-17-burnbar-design.md), [the phase-one plan](docs/superpowers/plans/2026-07-17-burnbar-phase1.md), and [Antigravity research](docs/providers/antigravity.md).
+Design and provider notes are available in [the product spec](docs/superpowers/specs/2026-07-17-tokenout-design.md), [the phase-one plan](docs/superpowers/plans/2026-07-17-tokenout-phase1.md), and [Antigravity research](docs/providers/antigravity.md).
