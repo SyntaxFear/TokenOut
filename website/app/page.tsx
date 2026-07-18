@@ -54,7 +54,7 @@ const structuredData = {
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD", availability: "https://schema.org/InStock" },
       screenshot: [
         `${siteConfig.siteURL}/assets/app-popover-real.png`,
-        `${siteConfig.siteURL}/assets/settings-display-real.png`,
+        `${siteConfig.siteURL}/assets/settings-display-tokenout.png`,
       ],
       featureList: [
         "Claude Code usage limits",
@@ -248,11 +248,11 @@ export default function Home() {
               <div className="detail-card-copy">
                 <PaintBrush aria-hidden="true" />
                 <h3>Show exactly what matters.</h3>
-                <p>Pick the menu bar metric, visible sections, chart range, and whether limits fill up or drain down.</p>
+                <p>Combine the icon, gauge, percentage, provider split, today&apos;s tokens, and cost—then choose how limits read.</p>
               </div>
               <Image
-                src="/assets/settings-display-real.png"
-                alt="TokenOut display settings for menu bar metrics, limit direction, charts, and breakdowns"
+                src="/assets/settings-display-tokenout.png"
+                alt="Current TokenOut display settings with combinable menu bar components, limit direction, charts, and breakdowns"
                 width={680}
                 height={552}
                 sizes="(max-width: 760px) 100vw, 62vw"

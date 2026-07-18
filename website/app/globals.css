@@ -555,7 +555,7 @@ img {
 
 .settings-card {
   grid-column: span 7;
-  min-height: 650px;
+  min-height: 720px;
   background:
     linear-gradient(145deg, var(--accent-soft), transparent 42%),
     var(--surface);
@@ -563,10 +563,10 @@ img {
 
 .settings-card img {
   position: absolute;
-  right: -9%;
-  bottom: -7%;
+  right: -4%;
+  bottom: -4%;
   display: block;
-  width: 93%;
+  width: 78%;
   height: auto;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-medium);
@@ -1334,13 +1334,13 @@ img {
   }
 
   .settings-card {
-    min-height: 520px;
+    min-height: 590px;
   }
 
   .settings-card img {
-    right: -19%;
+    right: -7%;
     bottom: -3%;
-    width: 118%;
+    width: 104%;
   }
 
   .share-card img {
@@ -1471,7 +1471,7 @@ img {
   }
 
   .settings-card {
-    min-height: 460px;
+    min-height: 560px;
   }
 }
 
