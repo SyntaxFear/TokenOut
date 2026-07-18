@@ -16,3 +16,5 @@ releases/*.dmg
 .codex/
 .vercel/
 website/tsconfig.tsbuildinfo
+website/.env*
+!website/.env.example

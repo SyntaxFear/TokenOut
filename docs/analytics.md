@@ -1,26 +1,33 @@
 # TokenOut analytics
 
-TokenOut measures four separate stages. Keep them separate when reporting because they answer different questions.
+TokenOut measures three separate stages, all on the website side — the app itself sends nothing. Keep them separate when reporting because they answer different questions.
 
 | Metric | Source | Meaning |
 |---|---|---|
 | Visitors and page views | Vercel Web Analytics | Anonymous visits to the marketing site, including pages and referrers. |
-| Download requests | Vercel custom event `Download Requested` | A visitor followed a TokenOut download link. The `placement` property identifies the button. |
-| Completed DMG downloads | GitHub release asset `download_count` | GitHub served a release asset. Repeat downloads and automated traffic can be included. |
-| App installs | Vercel custom event `App Installed` | The app reached its first successful launch and delivered the anonymous event. Reinstalling after deleting preferences can count again. |
-
-The app install event contains only:
-
-- TokenOut version
-- build number
-- macOS version
-- processor architecture (`arm64` or `x86_64`)
-
-It does not contain a device identifier, account identifier, provider data, prompts, filenames, token history, cost history, credentials, or rate-limit values.
+| Download requests | PostHog event `download_requested` | A visitor followed a TokenOut download link. The `placement` property identifies the button. |
+| DMG download count | GitHub release asset `download_count` | GitHub recorded an asset download request. Repeat downloads and automated traffic can be included. |
 
 ## Dashboards
 
-Open the TokenOut project in Vercel and use **Web Analytics** for visitors, referrers, `Download Requested`, and `App Installed`. Vercel custom events require a Vercel plan that supports them; anonymous page-view analytics and GitHub asset counts remain useful without custom events.
+Open the TokenOut project in Vercel and use **Web Analytics** for visitors and referrers. Open PostHog for the `download_requested` counts (per placement).
+
+Create a PostHog project, then configure these Vercel environment variables for Production and Preview:
+
+```sh
+POSTHOG_PROJECT_TOKEN=phc_your_project_token
+POSTHOG_HOST=https://us.i.posthog.com
+```
+
+Use `https://eu.i.posthog.com` instead if the project is hosted in PostHog EU. TokenOut sends events through its own server, disables person-profile creation, and generates a new random identifier for every event. No PostHog browser SDK, cookies, autocapture, or session replay are used.
+
+Until `POSTHOG_PROJECT_TOKEN` is configured, `download_requested` events are logged to the deployment console only.
+
+For a quick live JSON report of completed downloads, open:
+
+```text
+https://tokenout.scrubmac.app/api/analytics/downloads
+```
 
 Use GitHub's release asset API for completed download totals:
 
@@ -39,4 +46,3 @@ Before announcing a release:
 2. Confirm `https://tokenout.scrubmac.app/download` redirects to a successful GitHub asset response.
 3. Confirm the production site, `/robots.txt`, `/sitemap.xml`, and `/appcast.xml` return `200`.
 4. Confirm the Vercel Web Analytics dashboard receives a page view.
-5. Confirm a clean first app launch creates one `App Installed` event.

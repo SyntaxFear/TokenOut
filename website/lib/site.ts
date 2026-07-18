@@ -1,8 +1,8 @@
 export const siteConfig = {
   name: "TokenOut",
-  tagline: "Every AI limit. One glance.",
+  tagline: "Claude and Codex. One clear view.",
   description:
-    "Track Claude Code, Codex, and Antigravity limits, tokens, cost, history, and reset times from a private native macOS menu bar app.",
+    "Stay ahead of Claude Code and Codex limits with live usage, reset times, tokens, cost, and history in one native Mac menu bar app.",
   siteURL: "https://tokenout.scrubmac.app",
   repositoryURL: "https://github.com/SyntaxFear/TokenOut",
   downloadURL: "https://tokenout.scrubmac.app/download",
@@ -27,7 +27,7 @@ export const releases = [
       "Themes, four text sizes, 12 bundled fonts, 10 languages with live switching, and a redesigned native Settings window.",
       "Pricing verified against current Anthropic and OpenAI rates, resumed-session double-count fix, and graceful rate-limit handling.",
     ],
-    downloadURL: "https://github.com/SyntaxFear/TokenOut/releases/latest/download/TokenOut.dmg",
+    downloadURL: "https://tokenout.scrubmac.app/download?placement=release-history",
     sourceURL: "https://github.com/SyntaxFear/TokenOut/releases/tag/v1.1.0",
   },
   {
@@ -35,7 +35,7 @@ export const releases = [
     date: "2026-07-18",
     title: "First public release",
     summary:
-      "The complete TokenOut launch for Claude Code, Codex, and Antigravity usage monitoring.",
+      "The complete TokenOut launch for Claude Code and Codex usage monitoring.",
     highlights: [
       "Live provider limit windows, reset times, token totals, and API-equivalent cost estimates.",
       "Configurable menu bar metrics, charts, breakdowns, notifications, appearance, fonts, and ten languages.",

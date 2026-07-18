@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "TokenOut",
     short_name: "TokenOut",
-    description: "Private AI usage, limits, tokens, and cost monitoring for the macOS menu bar.",
+    description: "Claude Code and Codex limits, tokens, cost, and history in your Mac menu bar.",
     start_url: "/",
     display: "standalone",
     background_color: "#0d0d0f",

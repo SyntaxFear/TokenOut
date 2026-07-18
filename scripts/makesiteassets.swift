@@ -113,7 +113,7 @@ let og = NSImage(size: NSSize(width: ogW, height: ogH), flipped: false) { rect i
     ])
     title.draw(at: NSPoint(x: textX, y: ogH / 2 + 30))
 
-    let tagline = NSAttributedString(string: "Every AI limit.\nOne menu bar glance.", attributes: [
+    let tagline = NSAttributedString(string: "Claude + Codex.\nOne clear view.", attributes: [
         .font: NSFont.systemFont(ofSize: 84, weight: .medium),
         .foregroundColor: NSColor.white.withAlphaComponent(0.72),
     ])

@@ -1,6 +1,6 @@
 # TokenOut
 
-**Every AI limit. One glance.** TokenOut is a private native macOS menu bar app for tracking usage, rate-limit windows, tokens, and API-equivalent cost across AI coding tools.
+**Claude and Codex. One clear view.** TokenOut is a private native macOS menu bar app for tracking Claude Code and Codex usage, rate-limit windows, tokens, and API-equivalent cost.
 
 [Website](https://tokenout.scrubmac.app) | [Download](https://tokenout.scrubmac.app/download) | [Releases](https://tokenout.scrubmac.app/releases) | [Privacy](https://tokenout.scrubmac.app/privacy)
 

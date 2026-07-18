@@ -64,12 +64,14 @@ export default function PrivacyPage() {
           <h2>Anonymous analytics</h2>
           <p>
             The website uses Vercel Web Analytics for anonymous page-view and referrer totals. Download links pass through a TokenOut
-            redirect so download requests can be counted before the file is served by GitHub.
+            redirect that records an anonymous PostHog event before the file is served by GitHub. GitHub provides the completed-download
+            count for each public release asset.
           </p>
           <p>
             After the app first launches successfully, it sends one anonymous installation event containing only the TokenOut version,
             build number, macOS version, and processor architecture. The event has no name, email, provider data, usage history, device
-            identifier, advertising identifier, or account identifier. If delivery fails, TokenOut retries on a later launch.
+            identifier, advertising identifier, or account identifier. Analytics events use a new random identifier for every event and
+            do not create a PostHog person profile. If delivery fails, TokenOut retries on a later launch.
           </p>
 
           <h2>What TokenOut does not collect</h2>
@@ -98,7 +100,7 @@ export default function PrivacyPage() {
           <Image src="/assets/tokenout-symbol.png" alt="" width={28} height={28} />
           <span>TokenOut</span>
         </Link>
-        <p>Private AI usage monitoring for macOS.</p>
+        <p>Claude Code and Codex usage, live in your Mac menu bar.</p>
         <div>
           <Link href="/releases">Releases</Link>
           <a href={siteConfig.repositoryURL}><GithubLogo aria-hidden="true" /> GitHub</a>

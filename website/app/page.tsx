@@ -59,7 +59,6 @@ const structuredData = {
       featureList: [
         "Claude Code usage limits",
         "OpenAI Codex usage limits",
-        "Google Antigravity local activity",
         "Token and cost history",
         "Native macOS menu bar interface",
         "Signed automatic updates",
@@ -79,11 +78,6 @@ const providers = [
     name: "Codex",
     logo: "/assets/provider-codex.png",
     summary: "Primary and secondary rate limits, rollout history, plan details, and workspace breakdowns.",
-  },
-  {
-    name: "Antigravity",
-    logo: "/assets/provider-antigravity.png",
-    summary: "Local sessions, turns, daily activity, and estimated tokens when quota data is unavailable.",
   },
 ];
 
@@ -125,15 +119,15 @@ export default function Home() {
 
         <section className="hero site-shell">
           <Reveal className="hero-copy">
-            <p className="eyebrow">Native macOS usage monitor</p>
-            <h1>Every AI limit. One glance.</h1>
+            <p className="eyebrow">Claude Code + Codex usage monitor</p>
+            <h1>Know your limits before they slow you down.</h1>
             <p className="hero-subtitle">
-              Track Claude Code, Codex, and Antigravity usage, reset times, tokens, and cost from your menu bar.
+              See live usage, reset times, tokens, cost, and history for both tools—without leaving your Mac menu bar.
             </p>
             <div className="hero-actions">
               <a className="button" href={`${downloadURL}?placement=hero`}>
                 <ArrowDown aria-hidden="true" />
-                Download v{latestRelease.version}
+                Download TokenOut v{latestRelease.version}
               </a>
               <a className="text-link" href={repositoryURL} target="_blank" rel="noreferrer">
                 <GithubLogo aria-hidden="true" />
@@ -165,8 +159,8 @@ export default function Home() {
 
         <section className="provider-section site-shell" aria-labelledby="providers-heading">
           <Reveal className="provider-intro">
-            <h2 id="providers-heading">One place for the tools doing the work.</h2>
-            <p>TokenOut reads each installed tool in the way that tool actually supports.</p>
+            <h2 id="providers-heading">Two tools. One place to stay ahead.</h2>
+            <p>TokenOut gives Claude Code and Codex the detail each tool actually exposes, in one focused view.</p>
           </Reveal>
 
           <div className="provider-list">
@@ -359,8 +353,8 @@ export default function Home() {
         <section className="download-section site-shell">
           <Reveal className="download-panel">
             <div>
-              <h2>Keep every limit within reach.</h2>
-              <p>Install TokenOut, open the menu bar, and stop checking three tools separately.</p>
+              <h2>Keep Claude and Codex within reach.</h2>
+              <p>Install TokenOut and check both tools from one fast, native menu bar view.</p>
             </div>
             <a className="button" href={`${downloadURL}?placement=footer-cta`}>
               <ArrowDown aria-hidden="true" />
@@ -375,7 +369,7 @@ export default function Home() {
           <Image src="/assets/tokenout-symbol.png" alt="" width={28} height={28} />
           <span>TokenOut</span>
         </Link>
-        <p>Private AI usage monitoring for macOS.</p>
+        <p>Claude Code and Codex usage, live in your Mac menu bar.</p>
         <div>
           <Link href="/privacy">Privacy</Link>
           <Link href="/releases">Releases</Link>

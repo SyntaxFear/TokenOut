@@ -151,7 +151,7 @@ export default function ReleasesPage() {
           <Image src="/assets/tokenout-symbol.png" alt="" width={28} height={28} />
           <span>TokenOut</span>
         </Link>
-        <p>Private AI usage monitoring for macOS.</p>
+        <p>Claude Code and Codex usage, live in your Mac menu bar.</p>
         <div>
           <Link href="/privacy">Privacy</Link>
           <a href={siteConfig.repositoryURL}>GitHub</a>

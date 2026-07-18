@@ -10,7 +10,7 @@ const geistMono = Geist_Mono({ variable: "--font-mono", subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteURL),
   title: {
-    default: "TokenOut | AI usage, limits, and cost in your Mac menu bar",
+    default: "TokenOut | Claude Code and Codex usage in your Mac menu bar",
     template: "%s | TokenOut",
   },
   description: siteConfig.description,
@@ -21,7 +21,6 @@ export const metadata: Metadata = {
     "AI usage tracker",
     "Claude Code usage",
     "Codex usage",
-    "Antigravity usage",
     "macOS menu bar app",
     "token tracker",
     "AI rate limit monitor",
@@ -32,8 +31,8 @@ export const metadata: Metadata = {
   publisher: "TokenOut",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "TokenOut | Every AI limit. One glance.",
-    description: "Claude Code, Codex, and Antigravity limits, tokens, cost, and history in one native Mac menu bar app.",
+    title: "TokenOut | Stay ahead of Claude Code and Codex limits",
+    description: "Live limits, reset times, tokens, cost, and history for Claude Code and Codex in one native Mac menu bar app.",
     url: "/",
     siteName: "TokenOut",
     type: "website",
@@ -41,8 +40,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TokenOut | Every AI limit. One glance.",
-    description: "Track AI coding-tool limits, tokens, cost, and history without leaving the menu bar.",
+    title: "TokenOut | Claude Code and Codex at a glance",
+    description: "Know your limits, reset times, tokens, and cost without leaving the Mac menu bar.",
     images: ["/opengraph-image.png"],
   },
   icons: {

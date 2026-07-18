@@ -1,6 +1,6 @@
 # TokenOut
 
-> TokenOut is a private, native macOS menu bar app for monitoring AI coding-tool limits, usage, tokens, cost, reset times, and history.
+> TokenOut is a private, native macOS menu bar app for monitoring Claude Code and Codex limits, usage, tokens, cost, reset times, and history.
 
 Canonical website: https://tokenout.scrubmac.app
 Official source: https://github.com/SyntaxFear/TokenOut
@@ -14,11 +14,10 @@ Extended product reference: https://tokenout.scrubmac.app/llms-full.txt
 
 - Claude Code: live session and weekly limits, transcript tokens, model breakdowns, and cost estimates.
 - OpenAI Codex: primary and secondary rate-limit windows, rollout history, plan details, and workspace breakdowns.
-- Google Antigravity: local sessions, turns, daily activity, and estimated tokens where quota data is unavailable.
 
 ## Product facts
 
-- Current version: 1.0.0.
+- Current version: 1.1.0.
 - Requires macOS 14 or later.
 - Universal build for Apple silicon and Intel Macs.
 - Native SwiftUI menu bar application with no Dock icon.

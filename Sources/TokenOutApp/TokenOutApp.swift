@@ -55,7 +55,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             statusController = StatusItemController(app: app)
             OnboardingWindow.showIfNeeded(app: app)
-            InstallAnalytics.recordFirstLaunchIfNeeded()
         }
     }
 
