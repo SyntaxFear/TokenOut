@@ -6,7 +6,7 @@ All public TokenOut releases are documented here and at [tokenout.scrubmac.app/r
 
 ### Added
 
-- Native macOS menu bar monitoring for Claude Code, Codex, and Antigravity.
+- Native macOS menu bar monitoring for Claude Code and Codex.
 - Live usage windows, refill times, local token totals, cost estimates, daily charts, and provider breakdowns.
 - Used and remaining percentage modes across the menu bar and popover.
 - Configurable display sections, refresh cadence, alerts, launch at login, themes, text sizes, fonts, and ten languages.

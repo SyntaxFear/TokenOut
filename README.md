@@ -10,7 +10,6 @@
 |---|---|---|
 | **Claude Code** | Live session, weekly, and scoped windows from Claude Code's official usage endpoint | Transcript tokens, model breakdowns, and cost estimates |
 | **Codex** | Live primary and secondary rate-limit windows | Local rollout history and plan details |
-| **Antigravity** | Google does not expose a local quota signal | Sessions, turns, daily activity, and estimated local tokens |
 
 The menu bar can show the tightest enabled limit, one provider, or compact readings for every provider. The popover includes configurable combined totals, provider details, breakdowns, daily charts, refill countdowns, refresh cadence, and notification thresholds.
 
@@ -93,7 +92,5 @@ Analytics definitions and reporting commands are documented in [docs/analytics.m
 The Swift package has three primary targets:
 
 - `TokenOutCore`: normalized models, formatting, pricing, history, store, and refresh policy.
-- `TokenOutProviders`: provider implementations for Claude Code, Codex, and Antigravity.
+- `TokenOutProviders`: provider implementations for Claude Code and Codex.
 - `TokenOut`: the SwiftUI `MenuBarExtra` application, settings, notifications, and Sparkle updater.
-
-Design and provider notes are available in [the product spec](docs/superpowers/specs/2026-07-17-tokenout-design.md), [the phase-one plan](docs/superpowers/plans/2026-07-17-tokenout-phase1.md), and [Antigravity research](docs/providers/antigravity.md).
