@@ -36,14 +36,33 @@ extension View {
     func clickable() -> some View { hoverHighlight().pointer() }
 }
 
+/// Immediate, restrained press feedback for native controls. The scale is
+/// intentionally tiny: enough to feel direct without making dense UI wobble.
+struct TokenOutPressButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.988 : 1)
+            .opacity(configuration.isPressed ? 0.82 : 1)
+            .animation(.easeOut(duration: 0.09), value: configuration.isPressed)
+    }
+}
+
 /// A DisclosureGroup style with a self-drawn chevron sharing the label's hover
 /// highlight and tap target — the built-in style draws its twisty separately,
 /// so hovering it doesn't trigger the same feedback as hovering the label.
 struct RowDisclosureStyle: DisclosureGroupStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Button {
-                withAnimation { configuration.isExpanded.toggle() }
+                withAnimation(reduceMotion
+                              ? .easeOut(duration: 0.12)
+                              : .spring(response: 0.32, dampingFraction: 1.0)) {
+                    configuration.isExpanded.toggle()
+                }
             } label: {
                 HStack(spacing: 5) {
                     Image(systemName: "chevron.right")

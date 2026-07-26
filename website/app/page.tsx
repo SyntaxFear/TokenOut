@@ -182,7 +182,7 @@ export default function Home() {
           <Reveal className="section-heading">
             <h2>See the pressure before the cutoff.</h2>
             <p>
-              The popover keeps live limits, pace, refill times, token totals, cost estimates, and recent history in one compact view.
+              The compact overview keeps both limit horizons and today&apos;s usage visible. Expand one provider when you want the complete history.
             </p>
           </Reveal>
 
@@ -190,9 +190,9 @@ export default function Home() {
             <Reveal className="popover-capture">
               <Image
                 src="/assets/app-popover-real.png"
-                alt="TokenOut overview showing Claude Code and Codex limits, totals, breakdowns, and daily charts"
+                alt="TokenOut compact overview showing 5-hour and weekly limits plus today's usage for Claude Code and Codex"
                 width={340}
-                height={1151}
+                height={547}
                 sizes="(max-width: 760px) 88vw, 340px"
               />
               <p>Actual app interface with sample usage data.</p>
@@ -202,8 +202,8 @@ export default function Home() {
               <Reveal className="product-note">
                 <SlidersHorizontal aria-hidden="true" />
                 <div>
-                  <h3>Used or remaining</h3>
-                  <p>Choose the direction that makes limits easiest for you to read.</p>
+                  <h3>Compact first, detailed on demand</h3>
+                  <p>See both limits immediately, then expand only the provider you want to inspect.</p>
                 </div>
               </Reveal>
               <Reveal className="product-note" delay={0.05}>

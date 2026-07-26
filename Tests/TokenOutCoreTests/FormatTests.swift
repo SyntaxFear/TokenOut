@@ -23,6 +23,25 @@ import Foundation
     #expect(UsageMath.tightest(in: []) == nil)
 }
 
+@Test func compactWindowsKeepsSessionAndTightestWeekly() {
+    let snapshot = UsageSnapshot(providerID: .claude, fetchedAt: .now, accountLabel: nil, windows: [
+        LimitWindow(label: "Weekly (Sonnet)", kind: .weekly, usedFraction: 0.44, resetsAt: nil),
+        LimitWindow(label: "5-hour", kind: .session, usedFraction: 0.31, resetsAt: nil),
+        LimitWindow(label: "Weekly (all models)", kind: .weekly, usedFraction: 0.68, resetsAt: nil),
+        LimitWindow(label: "Credits", kind: .credits, usedFraction: 0.99, resetsAt: nil),
+    ], tokens: nil)
+
+    let windows = UsageMath.compactWindows(in: snapshot)
+    #expect(windows.map(\.label) == ["5-hour", "Weekly (all models)"])
+}
+
+@Test func compactWindowsFallsBackWithoutStandardHorizons() {
+    let snapshot = UsageSnapshot(providerID: .codex, fetchedAt: .now, accountLabel: nil, windows: [
+        LimitWindow(label: "Credits", kind: .credits, usedFraction: 0.80, resetsAt: nil),
+    ], tokens: nil)
+    #expect(UsageMath.compactWindows(in: snapshot).isEmpty)
+}
+
 @Test func usedFractionClamps() {
     #expect(LimitWindow(label: "x", kind: .session, usedFraction: 1.7, resetsAt: nil).usedFraction == 1.0)
     #expect(LimitWindow(label: "x", kind: .session, usedFraction: -0.2, resetsAt: nil).usedFraction == 0.0)

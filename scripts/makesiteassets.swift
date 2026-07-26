@@ -45,7 +45,7 @@ let hero = NSImage(size: NSSize(width: heroW, height: heroH), flipped: false) { 
     warmBackground(in: rect, glowCenter: NSPoint(x: heroW * 0.62, y: heroH * 0.6))
 
     // Right: top portion of the real popover, native-crisp, rounded, shadowed.
-    let cropHeightPoints: CGFloat = 620  // header + tabs + full Claude card
+    let cropHeightPoints: CGFloat = min(620, popover.size.height)
     let sourceRect = NSRect(x: 0, y: popover.size.height - cropHeightPoints,
                             width: popover.size.width, height: cropHeightPoints)
     let shotScale: CGFloat = 2.6

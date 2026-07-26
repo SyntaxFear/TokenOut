@@ -10,12 +10,10 @@ struct UsageSummaryTiles: View {
         HStack(spacing: 6) {
             tile(title: "Today",
                  value: tokenText(tokens.todayTokens, estimated: tokenCountIsEstimated),
-                 secondary: costText(tokens.todayCostUSD),
-                 accent: true)
+                 secondary: costText(tokens.todayCostUSD))
             tile(title: "This week",
                  value: tokenText(tokens.weekTokens, estimated: tokenCountIsEstimated),
-                 secondary: costText(tokens.weekCostUSD),
-                 accent: false)
+                 secondary: costText(tokens.weekCostUSD))
         }
     }
 
@@ -34,16 +32,13 @@ struct UsageSummaryTiles: View {
         return tokenCountIsEstimated ? "Estimated locally" : "Local usage"
     }
 
-    private func tile(title: String, value: String, secondary: String,
-                      accent: Bool) -> some View {
+    private func tile(title: String, value: String, secondary: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(title.uppercased())
-                .tokenOutFont(8.5, weight: .semibold)
-                .tracking(0.55)
-                .foregroundStyle(.tertiary)
+            Text(title)
+                .tokenOutFont(9.5, weight: .semibold)
+                .foregroundStyle(.secondary)
             MetricValueText(value: value)
-                .foregroundStyle(accent ? AnyShapeStyle(.orange.gradient)
-                                        : AnyShapeStyle(.primary))
+                .foregroundStyle(.primary)
             MetricValueText(value: secondary, size: 9, weight: .regular, design: .default)
                 .foregroundStyle(.tertiary)
         }
@@ -60,9 +55,9 @@ struct LimitUnavailableView: View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "gauge.with.dots.needle.0percent")
                 .tokenOutFont(12, weight: .medium)
-                .foregroundStyle(.orange)
+                .foregroundStyle(.secondary)
                 .frame(width: 24, height: 24)
-                .background(.orange.opacity(0.12), in: Circle())
+                .background(Color.primary.opacity(0.06), in: Circle())
             VStack(alignment: .leading, spacing: 2) {
                 Text("Quota unavailable")
                     .tokenOutFont(10.5, weight: .semibold)
@@ -74,10 +69,10 @@ struct LimitUnavailableView: View {
             Spacer(minLength: 0)
         }
         .padding(8)
-        .background(.orange.opacity(0.055), in: RoundedRectangle(cornerRadius: 9))
+        .background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 9))
         .overlay {
             RoundedRectangle(cornerRadius: 9)
-                .stroke(.orange.opacity(0.14), lineWidth: 0.5)
+                .stroke(Color.primary.opacity(0.07), lineWidth: 0.5)
         }
     }
 }

@@ -95,7 +95,7 @@ struct PopoverView: View {
         if visibleProviders.isEmpty {
             emptyState
         } else {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 8) {
                 ForEach(shown, id: \.id) { entry in
                     ProviderCard(providerID: entry.id,
                                  displayName: entry.name,

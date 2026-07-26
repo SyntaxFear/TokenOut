@@ -21,7 +21,7 @@ TokenOut reads existing local files and sessions created by supported command-li
 
 ## Platform and distribution
 
-TokenOut 1.1.0 requires macOS 14 or later and is distributed as a universal Apple silicon and Intel application. Official public releases are Developer ID signed, notarized by Apple, and verified with a signed Sparkle update feed. The app can check for updates manually or automatically from Settings → Updates.
+TokenOut 1.2.0 requires macOS 14 or later and is distributed as a universal Apple silicon and Intel application. Official public releases are Developer ID signed, notarized by Apple, and verified with a signed Sparkle update feed. The app can check for updates manually or automatically from Settings → Updates.
 
 ## Customization
 

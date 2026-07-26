@@ -68,9 +68,8 @@ struct DailyChartView: View {
                         .fixedSize()
                         .help("Plot charts by dollars or tokens")
                     } else {
-                        Text("TOKENS")
-                            .tokenOutFont(8.5, weight: .semibold)
-                            .tracking(0.5)
+                        Text("Tokens")
+                            .tokenOutFont(9, weight: .semibold)
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 3)
@@ -100,7 +99,6 @@ struct DailyChartView: View {
         var title: String
         var value: String
         var secondary: String?
-        var accent = false
     }
 
     /// One combined grid: the provider's Today / This-week token totals plus
@@ -111,24 +109,21 @@ struct DailyChartView: View {
             let estimatedMark = tokens.costIsEstimated ? "~" : ""
             tiles.append(Tile(title: "Today",
                               value: "\(Format.tokens(tokens.todayTokens)) tok",
-                              secondary: tokens.todayCostUSD.map { "\(estimatedMark)\(Format.usd($0)) value" },
-                              accent: true))
+                              secondary: tokens.todayCostUSD.map { "\(estimatedMark)\(Format.usd($0)) value" }))
             tiles.append(Tile(title: "This week",
                               value: "\(Format.tokens(tokens.weekTokens)) tok",
                               secondary: tokens.weekCostUSD.map { "\(estimatedMark)\(Format.usd($0)) value" }))
         }
         if hasCostData {
             tiles += [
-                Tile(title: "Today", value: Format.usd(todayStat?.costUSD ?? 0),
-                     accent: tokens == nil),
+                Tile(title: "Today", value: Format.usd(todayStat?.costUSD ?? 0)),
                 Tile(title: "\(app.dailyRange)d cost", value: Format.usd(totals.cost)),
                 Tile(title: "\(app.dailyRange)d tokens", value: Format.tokens(totals.tokens)),
                 Tile(title: "Peak day", value: Format.usd(priciestDay?.costUSD ?? 0)),
             ]
         } else {
             tiles += [
-                Tile(title: "Today", value: Format.tokens(todayStat?.tokens ?? 0),
-                     accent: tokens == nil),
+                Tile(title: "Today", value: Format.tokens(todayStat?.tokens ?? 0)),
                 Tile(title: "\(app.dailyRange)d tokens", value: Format.tokens(totals.tokens)),
                 Tile(title: "Active days", value: "\(visible.count)"),
                 Tile(title: "Peak day", value: Format.tokens(peakDay?.tokens ?? 0)),
@@ -138,13 +133,11 @@ struct DailyChartView: View {
                          spacing: 6) {
             ForEach(Array(tiles.enumerated()), id: \.offset) { _, tile in
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(tile.title.uppercased())
-                        .tokenOutFont(8.5, weight: .semibold)
-                        .tracking(0.6)
-                        .foregroundStyle(.tertiary)
+                    Text(tile.title)
+                        .tokenOutFont(9.5, weight: .semibold)
+                        .foregroundStyle(.secondary)
                     MetricValueText(value: tile.value)
-                        .foregroundStyle(tile.accent ? AnyShapeStyle(.orange.gradient)
-                                                     : AnyShapeStyle(.primary))
+                        .foregroundStyle(.primary)
                     if let secondary = tile.secondary {
                         MetricValueText(value: secondary, size: 9, weight: .regular, design: .default)
                             .foregroundStyle(.tertiary)
@@ -200,9 +193,9 @@ struct DailyChartView: View {
                 y: .value(effectiveMetric == .cost ? "Cost" : "Tokens", value(stat))
             )
             .foregroundStyle(
-                stat.day == hovered?.day ? AnyShapeStyle(.yellow.gradient)
-                : stat.day == peakDay?.day ? AnyShapeStyle(.red.gradient)
-                : AnyShapeStyle(.orange.gradient))
+                stat.day == hovered?.day ? AnyShapeStyle(Color.accentColor.opacity(0.82))
+                : stat.day == peakDay?.day ? AnyShapeStyle(Color.primary.opacity(0.68))
+                : AnyShapeStyle(Color.primary.opacity(0.32)))
             .cornerRadius(app.dailyRange <= 30 ? 2 : 1)
         }
         .chartOverlay { proxy in

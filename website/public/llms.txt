@@ -17,7 +17,7 @@ Extended product reference: https://tokenout.scrubmac.app/llms-full.txt
 
 ## Product facts
 
-- Current version: 1.1.0.
+- Current version: 1.2.0.
 - Requires macOS 14 or later.
 - Universal build for Apple silicon and Intel Macs.
 - Native SwiftUI menu bar application with no Dock icon.

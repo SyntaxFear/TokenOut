@@ -9,11 +9,27 @@ export const siteConfig = {
   directDownloadURL: "https://github.com/SyntaxFear/TokenOut/releases/latest/download/TokenOut.dmg",
   appcastURL: "https://tokenout.scrubmac.app/appcast.xml",
   minimumOS: "macOS 14 or later",
-  latestVersion: "1.1.0",
-  releaseDate: "2026-07-18",
+  latestVersion: "1.2.0",
+  releaseDate: "2026-07-26",
 } as const;
 
 export const releases = [
+  {
+    version: "1.2.0",
+    date: "2026-07-26",
+    title: "A calmer overview",
+    summary:
+      "Both limit horizons and today's usage now fit into a compact, readable provider card, with the complete analytics view one click away.",
+    highlights: [
+      "See the active 5-hour limit and the tightest weekly limit together for Claude Code and Codex.",
+      "Read today's tokens and API-equivalent value in one concise grouped row.",
+      "Expand either provider independently for every limit, projection, breakdown, metric tile, and daily chart.",
+      "Neutral adaptive bars and calmer charts reserve orange and red for conditions that actually need attention.",
+      "Larger sentence-case labels and reduced-motion-aware spring transitions improve readability and comfort.",
+    ],
+    downloadURL: "https://tokenout.scrubmac.app/download?placement=release-history",
+    sourceURL: "https://github.com/SyntaxFear/TokenOut/releases/tag/v1.2.0",
+  },
   {
     version: "1.1.0",
     date: "2026-07-18",

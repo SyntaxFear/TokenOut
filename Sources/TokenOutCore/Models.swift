@@ -196,4 +196,24 @@ public enum UsageMath {
             .flatMap { snap in snap.windows.filter { $0.kind != .credits }.map { (snapshot: snap, window: $0) } }
             .max { $0.window.usedFraction < $1.window.usedFraction }
     }
+
+    /// The two planning horizons that matter in a compact status view: the
+    /// tightest active session window and the tightest weekly window. Providers
+    /// can expose several scoped weekly limits; showing only the tightest keeps
+    /// the summary concise without hiding the constraint most likely to matter.
+    public static func compactWindows(in snapshot: UsageSnapshot) -> [LimitWindow] {
+        let session = snapshot.windows
+            .filter { $0.kind == .session }
+            .max { $0.usedFraction < $1.usedFraction }
+        let weekly = snapshot.windows
+            .filter { $0.kind == .weekly }
+            .max { $0.usedFraction < $1.usedFraction }
+        let standard = [session, weekly].compactMap { $0 }
+        if !standard.isEmpty { return standard }
+
+        return snapshot.windows
+            .filter { $0.kind != .credits }
+            .max { $0.usedFraction < $1.usedFraction }
+            .map { [$0] } ?? []
+    }
 }
